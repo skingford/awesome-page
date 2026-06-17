@@ -1,0 +1,1775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Morgan Brief — Paid technical intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   FULL-SCREEN SCROLL EXPERIENCE — every section is a 100vh scene.
+   Snap scrolling, morphing backgrounds, ghost numbers, dot nav,
+   per-scene choreographed entrances. Apple-keynote energy.
+   ═══════════════════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1D1D1F;--ink2:#6E6E73;--blue:#0071E3;
+  --silk:cubic-bezier(.16,1,.3,1);
+  --spring:cubic-bezier(.3,1.4,.4,1);
+}
+html{scroll-behavior:smooth}
+@media(min-width:740px) and (min-height:640px){
+  html{scroll-snap-type:y mandatory}
+}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  background:#fff;
+  transition:background 1.1s var(--silk);
+}
+/* morphing page backgrounds per active scene */
+body[data-scene="0"]{background:#FFFFFF}
+body[data-scene="1"]{background:#F5F5F7}
+body[data-scene="2"]{background:#EAF2FF}
+body[data-scene="3"]{background:#EAF9F0}
+body[data-scene="4"]{background:#000000}
+body[data-scene="5"]{background:#F3ECFF}
+body[data-scene="6"]{background:#0B0B0F}
+body[data-scene="7"]{background:#F5F5F7}
+
+/* ── Keyframes ── */
+@keyframes navIn{from{opacity:0;transform:translateY(-100%)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmer{0%{background-position:200% center}100%{background-position:-200% center}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes okIn{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+@keyframes orb1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,-40px) scale(1.15)}}
+@keyframes orb2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-50px,30px) scale(1.1)}}
+@keyframes letterIn{from{opacity:0;transform:translateY(60px) rotate(6deg);filter:blur(10px)}to{opacity:1;transform:translateY(0) rotate(0);filter:blur(0)}}
+@keyframes chipFloat{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-16px) rotate(3deg)}}
+@keyframes bounceY{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,8px)}}
+
+.split .ch{display:inline-block;animation:letterIn .9s var(--silk) both}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-snap-type:none}
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  .a{opacity:1!important;transform:none!important;filter:none!important}
+  .split .ch{animation:none;opacity:1}
+}
+
+/* ── Lang switcher ── */
+.nav-right{display:flex;align-items:center;gap:14px}
+.lang{position:relative}
+.lang-cur{
+  display:flex;align-items:center;gap:6px;
+  font-family:inherit;font-size:11.5px;font-weight:600;color:var(--ink);
+  background:transparent;border:1px solid rgba(0,0,0,.12);border-radius:99px;
+  padding:5px 10px 5px 8px;cursor:pointer;
+  transition:background .25s,border-color .25s,transform .2s;
+}
+.lang-cur:hover{background:rgba(0,0,0,.045);border-color:rgba(0,0,0,.22)}
+.lang-flag{font-size:13px;line-height:1}
+.lang-chev{transition:transform .35s cubic-bezier(.16,1,.3,1);color:var(--ink2)}
+.lang.open .lang-chev{transform:rotate(180deg)}
+.lang-menu{
+  position:absolute;right:0;top:calc(100% + 8px);min-width:150px;
+  background:rgba(255,255,255,.86);
+  backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
+  border:1px solid rgba(0,0,0,.08);border-radius:14px;
+  padding:5px;box-shadow:0 14px 44px rgba(0,0,0,.14);
+  opacity:0;transform:translateY(-6px) scale(.96);transform-origin:top right;
+  pointer-events:none;
+  transition:opacity .3s cubic-bezier(.16,1,.3,1),transform .35s cubic-bezier(.16,1,.3,1);
+}
+.lang.open .lang-menu{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+.lang-menu button{
+  display:flex;align-items:center;gap:10px;width:100%;
+  font-family:inherit;font-size:13px;font-weight:500;color:var(--ink);
+  background:transparent;border:none;border-radius:9px;
+  padding:9px 11px;cursor:pointer;text-align:left;white-space:nowrap;
+  transition:background .2s;
+}
+.lang-menu button:hover{background:rgba(0,0,0,.06)}
+.lang-menu .lf{font-size:15px;line-height:1;flex:0 0 auto}
+.lang-menu .ln{flex:1 1 auto}
+.lang-menu .lc{flex:0 0 auto;margin-left:8px;font-size:12px;font-weight:700;color:#0071E3;
+  opacity:0;transform:scale(.4);
+  transition:opacity .25s,transform .3s cubic-bezier(.3,1.4,.5,1)}
+.lang-menu button.on .lc{opacity:1;transform:scale(1)}
+body.dark-scene .lang-cur{color:#F5F5F7;border-color:rgba(255,255,255,.22)}
+body.dark-scene .lang-cur:hover{background:rgba(255,255,255,.1)}
+body.dark-scene .lang-chev{color:rgba(255,255,255,.55)}
+
+/* ── CJK typography ── */
+body.cjk{font-family:'Inter','PingFang SC','PingFang TC','Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans CJK SC','Microsoft YaHei','Malgun Gothic',system-ui,sans-serif}
+body.cjk .hero-h1,body.cjk .statement h2,body.cjk .contact-head,
+body.cjk .stats-head,body.cjk .prod-copy h3{letter-spacing:0}
+
+/* ── Scroll progress ── */
+#progress{position:fixed;top:0;left:0;height:3px;width:100%;z-index:2000;
+  transform-origin:left;transform:scaleX(0);
+  background:linear-gradient(90deg,#0071E3,#8E44EC,#E64980);pointer-events:none}
+
+/* ── Nav ── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:52px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.6);
+  backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:1px solid rgba(0,0,0,.06);
+  animation:navIn .6s var(--silk) both;
+  transition:background .8s,border-color .8s}
+body.dark-scene .nav{background:rgba(10,10,12,.55);border-color:rgba(255,255,255,.08)}
+.nav-inner{width:100%;max-width:1080px;display:flex;align-items:center;justify-content:space-between;padding:0 22px}
+.nav-logo{font-size:15px;font-weight:600;letter-spacing:-.02em;color:var(--ink);text-decoration:none;transition:color .8s,opacity .3s}
+body.dark-scene .nav-logo{color:#F5F5F7}
+.nav-logo:hover{opacity:.6}
+.nav-cta{font-size:12.5px;font-weight:500;color:#fff;background:var(--blue);
+  border:none;border-radius:99px;padding:7px 16px;cursor:pointer;font-family:inherit;
+  transition:background .3s,box-shadow .3s;will-change:transform}
+.nav-cta:hover{background:#0077ED;box-shadow:0 4px 16px rgba(0,113,227,.4)}
+
+/* ── Dot navigation ── */
+.dots{position:fixed;right:22px;top:50%;transform:translateY(-50%);z-index:1500;
+  display:flex;flex-direction:column;gap:14px}
+.dot{position:relative;width:8px;height:8px;border-radius:50%;
+  background:rgba(110,110,115,.4);cursor:pointer;border:none;padding:0;
+  transition:transform .45s var(--spring),background .4s}
+body.dark-scene .dot{background:rgba(255,255,255,.3)}
+.dot:hover{transform:scale(1.6)}
+.dot.on{background:var(--ink);transform:scale(1.7)}
+body.dark-scene .dot.on{background:#fff}
+.dot .lbl{position:absolute;right:20px;top:50%;transform:translateY(-50%) translateX(8px);
+  font-size:11px;font-weight:500;color:var(--ink);white-space:nowrap;
+  opacity:0;pointer-events:none;transition:opacity .3s,transform .4s var(--silk);
+  background:rgba(255,255,255,.85);backdrop-filter:blur(8px);
+  padding:4px 10px;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,.1)}
+.dot:hover .lbl{opacity:1;transform:translateY(-50%) translateX(0)}
+@media(max-width:740px){.dots{display:none}}
+
+/* ── Ghost number ── */
+#ghost{position:fixed;left:-2vw;bottom:-6vh;z-index:0;pointer-events:none;
+  font-size:42vh;font-weight:700;letter-spacing:-.06em;line-height:1;
+  color:rgba(29,29,31,.045);transition:color .9s;user-select:none}
+body.dark-scene #ghost{color:rgba(255,255,255,.05)}
+
+/* ── Scene counter ── */
+.counter{position:fixed;left:24px;bottom:24px;z-index:1500;
+  font-size:12px;font-weight:500;letter-spacing:.14em;color:var(--ink2);
+  display:flex;align-items:center;gap:10px;transition:color .8s}
+body.dark-scene .counter{color:rgba(255,255,255,.5)}
+.counter .line{width:36px;height:1px;background:currentColor;opacity:.4}
+@media(max-width:740px){.counter{display:none}}
+
+/* ── Scenes ── */
+.scene{
+  min-height:100svh;scroll-snap-align:start;scroll-snap-stop:always;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;padding:90px 24px 60px;
+  text-align:center;
+}
+/* choreographed children */
+.a{opacity:0;transform:translateY(46px) scale(.97);filter:blur(8px);
+  transition:opacity .9s var(--silk),transform .9s var(--silk),filter .9s var(--silk)}
+.scene.live .a{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}
+.scene.live .a1{transition-delay:.05s}.scene.live .a2{transition-delay:.18s}
+.scene.live .a3{transition-delay:.32s}.scene.live .a4{transition-delay:.46s}
+.scene.live .a5{transition-delay:.6s}
+/* slide variants */
+.aL{transform:translateX(-70px);filter:blur(8px);opacity:0;
+  transition:opacity 1s var(--silk),transform 1s var(--silk),filter 1s var(--silk)}
+.aR{transform:translateX(70px);filter:blur(8px);opacity:0;
+  transition:opacity 1s var(--silk),transform 1s var(--silk),filter 1s var(--silk)}
+.scene.live .aL,.scene.live .aR{transform:translateX(0);opacity:1;filter:blur(0)}
+
+.scroll-cue{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);
+  font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink2);
+  animation:bounceY 2s ease-in-out infinite;transition:color .8s}
+body.dark-scene .scroll-cue{color:rgba(255,255,255,.4)}
+
+/* ── Scene 0: Hero ── */
+.orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.55;pointer-events:none}
+.orb-1{width:480px;height:480px;background:#BFD9FF;top:8%;left:-8%;animation:orb1 14s ease-in-out infinite}
+.orb-2{width:420px;height:420px;background:#E8DCFF;bottom:4%;right:-6%;animation:orb2 17s ease-in-out infinite}
+.hero-content{position:relative;z-index:2;will-change:transform,opacity}
+.hero-eyebrow{font-size:15px;font-weight:500;color:var(--ink2);margin-bottom:14px}
+.hero-h1{font-size:clamp(48px,9.5vw,110px);font-weight:700;line-height:1.04;letter-spacing:-.045em}
+.hero-h1 .grad .ch{
+  background:linear-gradient(100deg,#0071E3 10%,#8E44EC 38%,#E64980 62%,#0071E3 90%);
+  background-size:300% auto;-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:letterIn .9s var(--silk) both,shimmer 6s linear 1.6s infinite}
+.hero-sub{font-size:clamp(18px,2.4vw,24px);color:var(--ink2);letter-spacing:-.015em;line-height:1.45;
+  max-width:560px;margin:26px auto 0;opacity:0;animation:letterIn 1s 1.05s var(--silk) forwards}
+.hero-links{display:flex;gap:28px;justify-content:center;margin-top:34px;
+  opacity:0;animation:letterIn 1s 1.25s var(--silk) forwards}
+.link-blue{font-size:18px;color:var(--blue);text-decoration:none;display:inline-flex;align-items:center;gap:5px;
+  transition:gap .35s var(--silk);cursor:pointer}
+.link-blue:hover{gap:10px;text-decoration:underline}
+
+/* ── Scene 1: Statement ── */
+.statement h2{font-size:clamp(30px,5.4vw,60px);font-weight:700;letter-spacing:-.035em;line-height:1.18;max-width:880px}
+.statement .w{opacity:.13;display:inline-block;transform:translateY(6px);filter:blur(1.5px);
+  transition:opacity .5s,transform .5s var(--silk),filter .5s}
+.statement .w.lit{opacity:1;transform:translateY(0);filter:blur(0)}
+
+/* ── Product scenes (2,3,4,5) ── */
+.prod{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:4vw;
+  max-width:1080px;width:100%;text-align:left}
+.prod.flip{direction:rtl}
+.prod.flip>*{direction:ltr}
+.prod-copy .ptag{font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px;display:block}
+.prod-copy h3{font-size:clamp(36px,5.6vw,68px);font-weight:700;letter-spacing:-.04em;line-height:1.02;margin-bottom:18px}
+.prod-copy p{font-size:clamp(16px,1.6vw,19px);line-height:1.55;letter-spacing:-.01em;max-width:430px;margin-bottom:24px}
+.prod-copy .link-blue{font-size:18px}
+.prod-art{display:flex;align-items:center;justify-content:center;position:relative}
+.big-chip{
+  width:clamp(180px,26vw,320px);height:clamp(180px,26vw,320px);
+  border-radius:26%;display:flex;align-items:center;justify-content:center;
+  font-size:clamp(72px,11vw,140px);font-weight:700;
+  box-shadow:0 40px 100px rgba(0,0,0,.22);
+  will-change:transform;user-select:none;position:relative;z-index:2}
+.big-chip .inner{animation:chipFloat 6s ease-in-out infinite;display:flex;align-items:center;justify-content:center;width:100%;height:100%}
+/* halo rings */
+.halo{position:absolute;border-radius:32%;border:1.5px solid currentColor;opacity:0;
+  transition:opacity .9s var(--silk),transform 1.2s var(--silk);z-index:1}
+.h1x{inset:-26px}.h2x{inset:-58px}
+.scene.live .halo{opacity:.2;transform:rotate(8deg)}
+.scene.live .h2x{opacity:.1;transform:rotate(-6deg)}
+
+.sc-blue .ptag{color:#0071E3}.sc-blue p{color:#51555C}
+.sc-blue .big-chip{background:linear-gradient(145deg,#0A84FF,#0055CC);color:#fff}
+.sc-blue .halo{color:#0071E3}
+.sc-green .ptag{color:#1B9C5A}.sc-green p{color:#4F5B53}
+.sc-green .link-blue{color:#1B9C5A}
+.sc-green .big-chip{background:linear-gradient(145deg,#30D158,#1B9C5A);color:#fff}
+.sc-green .halo{color:#1B9C5A}
+.sc-dark{color:#F5F5F7}
+.sc-dark .ptag{background:linear-gradient(90deg,#FFB36B,#FF6B9D,#C56BFF);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sc-dark h3{color:#F5F5F7}.sc-dark p{color:#A1A1A6}
+.sc-dark .link-blue{color:#2997FF}
+.sc-dark .big-chip{background:linear-gradient(145deg,#3A3A3C,#161617);color:#FFB36B}
+.sc-dark .halo{color:#FFB36B}
+.sc-purple .ptag{color:#8E44EC}.sc-purple p{color:#585065}
+.sc-purple .link-blue{color:#8E44EC}
+.sc-purple .big-chip{background:linear-gradient(145deg,#BF5AF2,#8E44EC);color:#fff}
+.sc-purple .halo{color:#8E44EC}
+@media(max-width:740px){
+  .prod{grid-template-columns:1fr;gap:34px;text-align:center}
+  .prod-copy p{margin-left:auto;margin-right:auto}
+  .prod-art{order:-1}
+}
+
+/* ── Scene 6: Stats ── */
+.stats-scene{color:#F5F5F7}
+#stars{position:absolute;inset:0;pointer-events:none}
+.stats-head{font-size:clamp(28px,4.8vw,52px);font-weight:700;letter-spacing:-.035em;margin-bottom:64px;position:relative}
+.stats-head .grad{background:linear-gradient(90deg,#2997FF,#BF5AF2,#FF6B9D);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5vw;position:relative}
+.stat-n{font-size:clamp(54px,8.5vw,104px);font-weight:700;letter-spacing:-.04em;line-height:1;
+  background:linear-gradient(180deg,#FFF 30%,#86868B 100%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  transition:transform .5s var(--silk)}
+.stats-grid>div:hover .stat-n{transform:scale(1.1)}
+.stat-l{font-size:15px;color:#86868B;margin-top:12px}
+@media(max-width:740px){.stats-grid{grid-template-columns:1fr;gap:40px}}
+
+/* ── Scene 7: Contact ── */
+.contact-head{font-size:clamp(30px,5vw,54px);font-weight:700;letter-spacing:-.035em;margin-bottom:12px}
+.contact-sub{font-size:18px;color:var(--ink2);letter-spacing:-.01em;margin-bottom:38px}
+.card-wrap{position:relative;border-radius:25px;padding:1.5px;background:rgba(0,0,0,.07);
+  max-width:640px;width:100%;text-align:left}
+.card-wrap::before{content:'';position:absolute;inset:0;border-radius:25px;opacity:0;transition:opacity .5s;
+  background:radial-gradient(280px circle at var(--mx,50%) var(--my,50%),rgba(0,113,227,.55),transparent 70%)}
+.card-wrap:hover::before{opacity:1}
+.card{position:relative;background:#fff;border-radius:24px;padding:clamp(24px,3.5vw,36px);box-shadow:0 4px 30px rgba(0,0,0,.05)}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:12.5px;font-weight:500;color:var(--ink2);margin-bottom:6px;transition:color .3s}
+.fg:focus-within label{color:var(--blue)}
+.fg input,.fg textarea,.fg select{width:100%;padding:12px 15px;border:1px solid rgba(0,0,0,.12);border-radius:12px;
+  background:#fff;font-family:inherit;font-size:14.5px;color:var(--ink);outline:none;
+  transition:border-color .3s,box-shadow .3s,transform .3s var(--silk);appearance:none;-webkit-appearance:none}
+.fg input:hover,.fg textarea:hover,.fg select:hover{border-color:rgba(0,0,0,.26)}
+.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(0,113,227,.14);transform:scale(1.006)}
+.fg textarea{min-height:84px;resize:vertical}
+.fg select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5L6 8l3.5-3.5' fill='none' stroke='%236E6E73' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;cursor:pointer}
+.form-foot{display:flex;align-items:center;justify-content:space-between;margin-top:14px;gap:14px;flex-wrap:wrap}
+.foot-note{font-size:12px;color:var(--ink2)}
+.foot-right{display:flex;align-items:center;gap:14px}
+.spin{display:none;width:18px;height:18px;border:2px solid rgba(0,0,0,.15);border-top-color:var(--blue);border-radius:50%;animation:spin .55s linear infinite}
+.ok{display:none;align-items:center;gap:7px;font-size:14px;font-weight:500;color:#1B9C5A}
+.ok.show{display:flex;animation:okIn .45s var(--silk) both}
+.send{font-family:inherit;font-size:15px;font-weight:500;color:#fff;background:var(--blue);
+  border:none;border-radius:99px;padding:12px 28px;cursor:pointer;
+  transition:background .3s,box-shadow .3s;will-change:transform}
+.send:hover{background:#0077ED;box-shadow:0 8px 24px rgba(0,113,227,.4)}
+.contact-foot{margin-top:30px;font-size:12px;color:var(--ink2)}
+.contact-foot a{color:var(--ink2);text-decoration:none;margin:0 10px;transition:color .3s}
+.contact-foot a:hover{color:var(--ink)}
+@media(max-width:560px){.f2{grid-template-columns:1fr}}
+
+/* ── Perfect form ── */
+.meter{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.meter-track{flex:1;height:4px;border-radius:99px;background:rgba(0,0,0,.07);overflow:hidden}
+.meter-fill{height:100%;width:0;border-radius:99px;
+  background:linear-gradient(90deg,#0071E3,#8E44EC,#E64980);
+  transition:width .6s var(--silk)}
+.meter-pct{font-size:11px;font-weight:600;color:var(--ink2);min-width:32px;text-align:right;
+  font-variant-numeric:tabular-nums;transition:color .3s}
+.meter-pct.full{color:#1B9C5A}
+
+/* floating labels */
+.ff{position:relative}
+.ff input,.ff textarea{padding:21px 38px 8px 15px}
+.ff textarea{padding-top:24px}
+.ff label{
+  position:absolute;left:16px;top:17px;
+  font-size:14px;color:var(--ink2);pointer-events:none;
+  transition:all .3s var(--silk);margin:0;
+}
+.ff input:focus~label,.ff input.filled~label,
+.ff textarea:focus~label,.ff textarea.filled~label{
+  top:7px;font-size:10.5px;font-weight:600;letter-spacing:.04em;color:var(--blue);text-transform:uppercase}
+.ff .vcheck{
+  position:absolute;right:14px;top:18px;
+  opacity:0;transform:scale(.4) rotate(-30deg);
+  transition:opacity .35s var(--silk),transform .45s var(--spring)}
+.ff.valid .vcheck{opacity:1;transform:scale(1) rotate(0)}
+.ff.error input,.ff.error textarea{border-color:#E5484D!important;box-shadow:0 0 0 4px rgba(229,72,77,.12)!important;
+  animation:shake .45s var(--silk)}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(2px)}}
+.char-hint{position:absolute;right:14px;bottom:9px;font-size:10.5px;color:var(--ink2);opacity:0;transition:opacity .3s}
+.ff:focus-within .char-hint{opacity:.8}
+
+/* segmented budget */
+.seg-label{display:block;font-size:10.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink2);margin-bottom:8px}
+.seg{display:flex;gap:7px;flex-wrap:wrap}
+.seg button{
+  font-family:inherit;font-size:13px;font-weight:500;color:var(--ink);
+  background:#fff;border:1px solid rgba(0,0,0,.13);border-radius:99px;
+  padding:8px 15px;cursor:pointer;
+  transition:transform .35s var(--spring),background .25s,color .25s,border-color .25s,box-shadow .25s}
+.seg button:hover{border-color:var(--blue);transform:translateY(-2px)}
+.seg button.sel{
+  background:var(--ink);color:#fff;border-color:var(--ink);
+  transform:scale(1.06);box-shadow:0 6px 18px rgba(0,0,0,.18)}
+
+/* send button: plane launch */
+.send{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:8px}
+.send .s-plane{transition:transform .5s var(--silk),opacity .4s}
+.send .s-txt{transition:transform .4s var(--silk),opacity .3s}
+.send.flying .s-plane{transform:translate(70px,-46px) rotate(14deg) scale(1.25);opacity:0}
+.send.flying .s-txt{transform:translateX(-12px);opacity:.4}
+.send:hover .s-plane{transform:translateX(3px) rotate(8deg)}
+
+/* success panel */
+.done{display:none;text-align:center;padding:26px 8px 14px}
+.card.sent .form-area{display:none}
+.card.sent .done{display:block;animation:okIn .6s var(--silk) both}
+.dc-ring{stroke-dasharray:239;stroke-dashoffset:239}
+.dc-tick{stroke-dasharray:60;stroke-dashoffset:60}
+.card.sent .dc-ring{animation:draw 0.8s .15s var(--silk) forwards}
+.card.sent .dc-tick{animation:draw 0.5s .8s var(--silk) forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.done-h{font-size:26px;font-weight:700;letter-spacing:-.03em;margin:18px 0 6px}
+.done-p{font-size:15px;color:var(--ink2);margin-bottom:22px}
+.done-again{
+  font-family:inherit;font-size:13.5px;font-weight:500;color:var(--blue);
+  background:none;border:none;cursor:pointer;padding:6px 10px;border-radius:8px;
+  transition:background .25s}
+.done-again:hover{background:rgba(0,113,227,.08)}
+
+/* confetti */
+.cf{position:absolute;top:-10px;width:8px;height:13px;border-radius:2px;
+  pointer-events:none;z-index:10;
+  animation:cfFall var(--d,1.6s) var(--silk) forwards}
+@keyframes cfFall{
+  0%{transform:translate(0,0) rotate(0);opacity:1}
+  100%{transform:translate(var(--cx,0),var(--cy,300px)) rotate(var(--cr,540deg));opacity:0}}
+
+/* ════ CHECKOUT ════ */
+.checkout{max-width:680px;width:100%;text-align:left}
+
+/* mode toggle */
+.mode-toggle{position:relative;display:inline-flex;background:var(--bg-soft);
+  border-radius:99px;padding:4px;margin:0 auto 26px;gap:2px;left:50%;transform:translateX(-50%)}
+.mode-pill{position:absolute;top:4px;left:4px;height:calc(100% - 8px);width:calc(50% - 4px);
+  background:#fff;border-radius:99px;box-shadow:0 2px 10px rgba(0,0,0,.1);
+  transition:transform .45s var(--silk)}
+.mode-toggle.ppv .mode-pill{transform:translateX(100%)}
+.mode-btn{position:relative;z-index:1;font-family:inherit;font-size:13px;font-weight:600;
+  color:var(--ink2);background:none;border:none;border-radius:99px;
+  padding:9px 22px;cursor:pointer;transition:color .3s}
+.mode-btn.on{color:var(--ink)}
+
+/* panels */
+.panel{animation:panelIn .5s var(--silk) both}
+@keyframes panelIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* plan grid */
+.plan-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.plan{position:relative;display:flex;flex-direction:column;gap:8px;
+  background:#fff;border:1.5px solid rgba(0,0,0,.1);border-radius:16px;
+  padding:18px 14px;cursor:pointer;text-align:left;font-family:inherit;
+  transition:transform .4s var(--spring),border-color .25s,box-shadow .3s}
+.plan:hover{transform:translateY(-5px);box-shadow:0 14px 34px rgba(0,0,0,.09)}
+.plan.sel{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,113,235,.14),0 16px 40px rgba(0,113,235,.16);transform:translateY(-5px)}
+.plan.popular{border-color:rgba(0,113,235,.4)}
+.plan-badge{position:absolute;top:-9px;left:50%;transform:translateX(-50%);
+  font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:#fff;background:linear-gradient(90deg,#0071E3,#8E44EC);
+  padding:3px 9px;border-radius:99px;white-space:nowrap}
+.plan-name{font-size:13px;font-weight:600;color:var(--ink2)}
+.plan-price b{font-size:23px;font-weight:700;letter-spacing:-.03em}
+.plan-price i{font-size:12px;font-style:normal;color:var(--ink2);margin-left:1px}
+.plan-feat{font-size:11px;color:var(--ink2);line-height:1.5;margin-top:auto}
+@media(max-width:640px){.plan-grid{grid-template-columns:1fr 1fr}}
+
+/* billing cycle */
+.cycle{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:18px}
+.cycle-lbl{font-size:13px;color:var(--ink2);transition:color .3s}
+.cycle-lbl .save{font-style:normal;font-size:10.5px;font-weight:600;color:#1B9C5A;
+  background:rgba(27,156,90,.12);padding:2px 7px;border-radius:99px;margin-left:4px}
+.cycle-switch{position:relative;width:42px;height:24px;border-radius:99px;
+  background:rgba(0,0,0,.15);border:none;cursor:pointer;transition:background .3s}
+.cycle-switch[aria-checked="true"]{background:var(--blue)}
+.cycle-switch .knob{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;
+  background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.25);transition:transform .35s var(--spring)}
+.cycle-switch[aria-checked="true"] .knob{transform:translateX(18px)}
+
+/* article list */
+.art-list{display:flex;flex-direction:column;gap:9px}
+.art{display:flex;align-items:center;gap:14px;
+  background:#fff;border:1.5px solid rgba(0,0,0,.1);border-radius:14px;
+  padding:14px 16px;cursor:pointer;text-align:left;font-family:inherit;
+  transition:transform .35s var(--spring),border-color .25s,box-shadow .3s}
+.art:hover{transform:translateX(4px);box-shadow:0 8px 24px rgba(0,0,0,.07)}
+.art.sel{border-color:var(--blue);background:linear-gradient(90deg,rgba(0,113,235,.05),#fff)}
+.art-meta{display:flex;flex-direction:column;gap:3px;min-width:64px}
+.art-tag{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--blue)}
+.art-time{font-size:11px;color:var(--ink3)}
+.art-title{flex:1;font-size:14.5px;font-weight:500}
+.art-add{display:flex;align-items:center;gap:8px}
+.art-price{font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
+.art-plus{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--blue);
+  color:var(--blue);display:flex;align-items:center;justify-content:center;
+  font-size:15px;line-height:1;transition:background .3s,color .3s,transform .4s var(--spring)}
+.art.sel .art-plus{background:var(--blue);color:#fff;transform:rotate(135deg)}
+.ppv-hint{font-size:12px;color:var(--ink3);text-align:center;margin-top:14px}
+
+/* live summary */
+.summary{margin-top:22px;border-top:1px dashed rgba(0,0,0,.14);padding-top:18px}
+.sum-rows{display:flex;flex-direction:column;gap:7px;margin-bottom:12px;min-height:4px}
+.sum-row{display:flex;justify-content:space-between;font-size:13.5px;
+  animation:sumIn .4s var(--silk) both}
+.sum-row .sr-label{color:var(--ink2)}
+.sum-row .sr-amt{font-variant-numeric:tabular-nums;font-weight:500}
+.sum-row.discount .sr-amt{color:#1B9C5A}
+@keyframes sumIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+.sum-total{display:flex;justify-content:space-between;align-items:baseline;
+  font-weight:600;font-size:15px;margin-bottom:16px}
+.sum-amt{font-size:26px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums;
+  transition:transform .3s var(--spring)}
+.sum-amt.bump{transform:scale(1.14)}
+.pay-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
+  font-family:inherit;font-size:15px;font-weight:600;color:#fff;
+  background:var(--blue);border:none;border-radius:14px;padding:15px;cursor:pointer;
+  transition:background .3s,opacity .3s,transform .2s}
+.pay-btn:hover:not(:disabled){background:#0077ED;transform:translateY(-1px)}
+.pay-btn:active:not(:disabled){transform:scale(.99)}
+.pay-btn:disabled{background:rgba(0,0,0,.12);color:rgba(0,0,0,.4);cursor:not-allowed}
+.pay-amt{font-variant-numeric:tabular-nums}
+
+/* ══ payment sheet ══ */
+.pay-sheet{position:fixed;inset:0;z-index:5000;display:flex;align-items:flex-end;justify-content:center;
+  background:rgba(0,0,0,0);pointer-events:none;
+  transition:background .45s var(--silk)}
+.pay-sheet.open{background:rgba(0,0,0,.45);pointer-events:auto}
+.sheet-card{position:relative;width:100%;max-width:460px;
+  background:#fff;border-radius:26px 26px 0 0;
+  padding:30px 26px calc(30px + env(safe-area-inset-bottom));
+  transform:translateY(105%);transition:transform .5s var(--silk);
+  max-height:92vh;overflow-y:auto}
+.pay-sheet.open .sheet-card{transform:translateY(0)}
+@media(min-width:560px){
+  .pay-sheet{align-items:center}
+  .sheet-card{border-radius:26px;margin:20px}
+}
+.sheet-close{position:absolute;top:18px;right:18px;width:30px;height:30px;border-radius:50%;
+  border:none;background:var(--bg-soft);color:var(--ink2);font-size:13px;cursor:pointer;
+  transition:background .25s,transform .2s}
+.sheet-close:hover{background:var(--bg3);transform:rotate(90deg)}
+.sheet-h{font-size:20px;font-weight:700;letter-spacing:-.02em;margin-bottom:18px}
+
+/* credit card */
+.cc{perspective:1000px;margin-bottom:22px}
+.cc-inner{position:relative;width:100%;aspect-ratio:1.586;border-radius:16px;
+  transform-style:preserve-3d;transition:transform .7s var(--silk)}
+.cc.flip .cc-inner{transform:rotateY(180deg)}
+.cc-face{position:absolute;inset:0;border-radius:16px;backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;padding:18px 20px;color:#fff;overflow:hidden}
+.cc-front{background:linear-gradient(135deg,#1a1a2e,#16213e 55%,#0f3460);
+  display:flex;flex-direction:column;justify-content:space-between}
+.cc-front::after{content:'';position:absolute;width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(120,90,255,.4),transparent 70%);top:-60px;right:-40px}
+.cc-row1{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1}
+.cc-chip{width:36px;height:26px;border-radius:5px;
+  background:linear-gradient(135deg,#e9d27a,#b8932f);box-shadow:inset 0 0 4px rgba(0,0,0,.3)}
+.cc-brand{font-size:15px;font-weight:700;letter-spacing:.05em;font-style:italic}
+.cc-num{font-family:'IBM Plex Mono','Courier New',monospace;font-size:clamp(16px,4.5vw,20px);
+  letter-spacing:.1em;position:relative;z-index:1}
+.cc-row3{display:flex;justify-content:space-between;position:relative;z-index:1}
+.cc-row3 small{font-size:8px;opacity:.6;text-transform:uppercase;letter-spacing:.08em}
+.cc-row3 b{font-size:13px;font-weight:500;letter-spacing:.04em}
+.cc-back{background:linear-gradient(135deg,#16213e,#0f3460);transform:rotateY(180deg)}
+.cc-stripe{position:absolute;top:22px;left:0;right:0;height:40px;background:#000}
+.cc-cvc-row{position:absolute;top:74px;right:20px;left:20px;height:32px;
+  background:#fff;border-radius:5px;display:flex;align-items:center;justify-content:flex-end;
+  padding:0 12px}
+.cc-cvc{color:#111;font-family:'IBM Plex Mono',monospace;font-size:14px;letter-spacing:.15em}
+
+.pay-fields .fg{margin-bottom:12px}
+.brand-dot{position:absolute;right:14px;top:18px;font-size:11px;font-weight:700;color:var(--blue)}
+.confirm-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:7px;
+  font-family:inherit;font-size:15px;font-weight:600;color:#fff;
+  background:var(--ink);border:none;border-radius:14px;padding:15px;cursor:pointer;
+  position:relative;overflow:hidden;transition:opacity .3s,transform .2s}
+.confirm-btn:hover{opacity:.9;transform:translateY(-1px)}
+.confirm-btn.loading{pointer-events:none}
+.confirm-btn.loading .cf-txt,.confirm-btn.loading .cf-amt,.confirm-btn.loading .cf-lock{opacity:0}
+.confirm-btn.loading::after{content:'';position:absolute;width:18px;height:18px;
+  border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;
+  animation:spin .55s linear infinite}
+.cf-amt{font-variant-numeric:tabular-nums}
+.pay-secure{font-size:11px;color:var(--ink3);text-align:center;margin-top:12px}
+
+/* sheet success */
+.sheet-done{display:none;text-align:center;padding:14px 6px}
+.sheet-card.paid .sheet-body{display:none}
+.sheet-card.paid .sheet-done{display:block;animation:okIn .6s var(--silk) both}
+.sheet-card.paid .dc-ring{animation:draw .8s .15s var(--silk) forwards}
+.sheet-card.paid .dc-tick{animation:draw .5s .8s var(--silk) forwards}
+
+/* ── Cursor 2.0: morphing ring + FX canvas ── */
+@media(pointer:fine){
+  body,a,button,input,textarea,select,.dot,.link-blue,.big-chip{cursor:none}
+}
+/* the form is a native-cursor zone: no custom cursor, no effects */
+.checkout,.checkout *,.pay-sheet,.pay-sheet *,.lang-menu,.lang-menu *{cursor:auto!important}
+.checkout input,.checkout textarea,.pay-sheet input,.pay-sheet textarea{cursor:text!important}
+.checkout button,.checkout label,.pay-sheet button,.pay-sheet label,.lang-menu button{cursor:pointer!important}
+body.form-zone #cur,body.form-zone #curR{opacity:0!important;transition:opacity .15s}
+#fx{position:fixed;inset:0;z-index:3996;pointer-events:none}
+#cur{
+  position:fixed;top:0;left:0;z-index:4000;pointer-events:none;
+  width:9px;height:9px;border-radius:50%;
+  background:#fff;mix-blend-mode:difference;
+  will-change:transform;
+  opacity:0;
+}
+#curR{
+  position:fixed;top:0;left:0;z-index:3999;pointer-events:none;
+  width:38px;height:38px;
+  mix-blend-mode:difference;
+  display:flex;align-items:center;justify-content:center;
+  will-change:transform,width,height;
+  transition:opacity .3s;
+  opacity:0;
+}
+/* revealed only when the cursor engine is actually running */
+body.cursor-on #cur,body.cursor-on #curR{opacity:1}
+/* corner brackets of the reticle */
+#curR .cnr{
+  position:absolute;width:9px;height:9px;
+  border:1.6px solid #fff;
+  transition:opacity .25s,width .3s,height .3s;
+}
+#curR .c1{top:0;left:0;border-right:none;border-bottom:none;border-top-left-radius:3px}
+#curR .c2{top:0;right:0;border-left:none;border-bottom:none;border-top-right-radius:3px}
+#curR .c3{bottom:0;left:0;border-right:none;border-top:none;border-bottom-left-radius:3px}
+#curR .c4{bottom:0;right:0;border-left:none;border-top:none;border-bottom-right-radius:3px}
+/* target-locked: brackets grow bolder */
+#curR.locked .cnr{width:12px;height:12px}
+#curLbl{
+  font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:.03em;
+  color:transparent;white-space:nowrap;transition:color .2s;
+}
+#curR.label-mode{mix-blend-mode:normal}
+#curR.label-mode .cnr{opacity:0}
+#curR.label-mode{
+  background:rgba(20,20,23,.85);border-radius:99px;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+#curR.label-mode #curLbl{color:#fff}
+body.dark-scene #curR.label-mode{background:rgba(255,255,255,.93)}
+body.dark-scene #curR.label-mode #curLbl{color:#111}
+#curR.beam-mode .cnr{opacity:0}
+#curR.beam-mode{background:#fff;border-radius:2px}
+body.cursor-hidden #cur,body.cursor-hidden #curR{opacity:0!important}
+@media(pointer:coarse){#cur,#curR,#fx{display:none}}
+
+/* draggable chips */
+.big-chip{touch-action:none}
+.big-chip[data-drag]{box-shadow:0 60px 130px rgba(0,0,0,.3)}
+.big-chip[data-drag] .inner{animation-play-state:paused}
+</style>
+</head>
+<body data-scene="0">
+
+<div id="cur" aria-hidden="true" style="transform:translate(-200px,-200px)"></div>
+<div id="curR" aria-hidden="true" style="transform:translate(-200px,-200px)">
+  <span class="cnr c1"></span><span class="cnr c2"></span>
+  <span class="cnr c3"></span><span class="cnr c4"></span>
+  <span id="curLbl"></span>
+</div>
+<canvas id="fx" aria-hidden="true"></canvas>
+
+<div id="progress" aria-hidden="true"></div>
+<div id="ghost" aria-hidden="true">01</div>
+
+<nav class="nav" aria-label="Main">
+  <div class="nav-inner">
+    <a class="nav-logo" href="#s0">The Morgan Brief</a>
+    <div class="nav-right">
+      <div class="lang" id="lang-dd">
+        <button type="button" class="lang-cur" id="lang-cur" aria-haspopup="listbox" aria-expanded="false" aria-label="Language">
+          <span class="lang-flag" id="lang-flag">🇺🇸</span><span class="lang-code" id="lang-code">EN</span>
+          <svg class="lang-chev" width="9" height="9" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+            <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="lang-menu" id="lang-menu" role="listbox" aria-label="Language">
+          <button type="button" data-lang="en" role="option" class="on"><span class="lf">🇺🇸</span><span class="ln">English</span><span class="lc">✓</span></button>
+          <button type="button" data-lang="zh" role="option"><span class="lf">🇨🇳</span><span class="ln">简体中文</span><span class="lc">✓</span></button>
+          <button type="button" data-lang="tw" role="option"><span class="lf">🇨🇳</span><span class="ln">繁體中文</span><span class="lc">✓</span></button>
+          <button type="button" data-lang="ja" role="option"><span class="lf">🇯🇵</span><span class="ln">日本語</span><span class="lc">✓</span></button>
+          <button type="button" data-lang="ko" role="option"><span class="lf">🇰🇷</span><span class="ln">한국어</span><span class="lc">✓</span></button>
+        </div>
+      </div>
+      <button class="nav-cta magnetic" onclick="goTo('s7')">Subscribe</button>
+    </div>
+  </div>
+</nav>
+
+<!-- Dot nav -->
+<div class="dots" role="navigation" aria-label="Sections">
+  <button class="dot on" data-go="s0" aria-label="Intro"><span class="lbl">Intro</span></button>
+  <button class="dot" data-go="s1" aria-label="Why paid"><span class="lbl">Why paid</span></button>
+  <button class="dot" data-go="s2" aria-label="Deep-dives"><span class="lbl">Deep-dives</span></button>
+  <button class="dot" data-go="s3" aria-label="Code vault"><span class="lbl">Code vault</span></button>
+  <button class="dot" data-go="s4" aria-label="Pro reports"><span class="lbl">Pro reports</span></button>
+  <button class="dot" data-go="s5" aria-label="Community"><span class="lbl">Community</span></button>
+  <button class="dot" data-go="s6" aria-label="Numbers"><span class="lbl">Numbers</span></button>
+  <button class="dot" data-go="s7" aria-label="Plans"><span class="lbl">Plans</span></button>
+</div>
+
+<div class="counter" aria-hidden="true"><span id="cnt">01</span><span class="line"></span><span>08</span></div>
+
+<!-- ── SCENE 0 · HERO ── -->
+<section class="scene" id="s0" data-i="0" aria-label="Introduction">
+  <div class="orb orb-1" aria-hidden="true"></div>
+  <div class="orb orb-2" aria-hidden="true"></div>
+  <div class="hero-content" id="hero-content">
+    <p class="hero-eyebrow split" data-split data-delay="0">By Alex Morgan</p>
+    <h1 class="hero-h1">
+      <span class="split" data-split data-delay="200">Tech intel.</span><br>
+      <span class="split grad" data-split data-delay="450">Decoded.</span>
+    </h1>
+    <p class="hero-sub">A paid technical briefing for engineers and founders — research, working code, and analysis you can act on the same day.</p>
+    <div class="hero-links">
+      <a class="link-blue" onclick="goTo('s2')">See what's inside <span class="chev">›</span></a>
+      <a class="link-blue" onclick="goTo('s7')">View plans <span class="chev">›</span></a>
+    </div>
+  </div>
+  <span class="scroll-cue">Scroll</span>
+</section>
+
+<!-- ── SCENE 1 · STATEMENT ── -->
+<section class="scene statement" id="s1" data-i="1" aria-label="Philosophy">
+  <h2 id="statement-text">Free information is everywhere. Signal is what you pay for.</h2>
+  <span class="scroll-cue">Keep going</span>
+</section>
+
+<!-- ── SCENE 2 · BLUE ── -->
+<section class="scene sc-blue" id="s2" data-i="2" aria-label="Weekly deep-dives">
+  <div class="prod">
+    <div class="prod-copy">
+      <span class="ptag aL a1">Weekly deep-dive · Every Tuesday</span>
+      <h3 class="aL a2">One topic.<br>Fully decoded.</h3>
+      <p class="aL a3">A 20-minute deep-dive on one technology that matters: the architecture, the trade-offs, and exactly what to do about it.</p>
+      <a class="link-blue aL a4" onclick="goTo('s7')">Read a sample <span class="chev">›</span></a>
+    </div>
+    <div class="prod-art">
+      <div class="halo h1x" aria-hidden="true"></div>
+      <div class="halo h2x" aria-hidden="true"></div>
+      <div class="big-chip aR a2" data-tilt aria-hidden="true"><span class="inner">◔</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SCENE 3 · GREEN (flipped) ── -->
+<section class="scene sc-green" id="s3" data-i="3" aria-label="Code vault">
+  <div class="prod flip">
+    <div class="prod-copy">
+      <span class="ptag aR a1">Code vault · Included free</span>
+      <h3 class="aR a2">Ship faster.<br>Copy mine.</h3>
+      <p class="aR a3">Production-grade templates, snippets, and starter repos behind every issue. Paste, adapt, deploy — commercial license included.</p>
+      <a class="link-blue aR a4" onclick="goTo('s7')">Browse the vault <span class="chev">›</span></a>
+    </div>
+    <div class="prod-art">
+      <div class="halo h1x" aria-hidden="true"></div>
+      <div class="halo h2x" aria-hidden="true"></div>
+      <div class="big-chip aL a2" data-tilt aria-hidden="true"><span class="inner">❧</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SCENE 4 · DARK PRO ── -->
+<section class="scene sc-dark" id="s4" data-i="4" aria-label="Pro research reports">
+  <div class="prod">
+    <div class="prod-copy">
+      <span class="ptag aL a1">Research reports · Pro</span>
+      <h3 class="aL a2">Quarterly.<br>Unfiltered.</h3>
+      <p class="aL a3">Long-form technology research for Pro members — benchmarks, forecasts, vendor teardowns. No sponsors. No spin. No mercy.</p>
+      <a class="link-blue aL a4" onclick="goTo('s7')">See the latest report <span class="chev">›</span></a>
+    </div>
+    <div class="prod-art">
+      <div class="halo h1x" aria-hidden="true"></div>
+      <div class="halo h2x" aria-hidden="true"></div>
+      <div class="big-chip aR a2" data-tilt aria-hidden="true"><span class="inner">◎</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SCENE 5 · PURPLE (flipped) ── -->
+<section class="scene sc-purple" id="s5" data-i="5" aria-label="Member community">
+  <div class="prod flip">
+    <div class="prod-copy">
+      <span class="ptag aR a1">Member Q&amp;A · Community</span>
+      <h3 class="aR a2">Ask anything.<br>Get answers.</h3>
+      <p class="aR a3">A private space where members get direct answers within 24 hours — plus monthly live calls and a searchable archive of every thread.</p>
+      <a class="link-blue aR a4" onclick="goTo('s7')">Peek inside <span class="chev">›</span></a>
+    </div>
+    <div class="prod-art">
+      <div class="halo h1x" aria-hidden="true"></div>
+      <div class="halo h2x" aria-hidden="true"></div>
+      <div class="big-chip aL a2" data-tilt aria-hidden="true"><span class="inner">✓</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SCENE 6 · STATS ── -->
+<section class="scene stats-scene" id="s6" data-i="6" aria-label="Statistics">
+  <canvas id="stars" aria-hidden="true"></canvas>
+  <h2 class="stats-head a a1">Numbers that<br><span class="grad">speak for themselves.</span></h2>
+  <div class="stats-grid">
+    <div class="a a2"><div class="stat-n" data-target="12" data-suffix="k+">0</div><div class="stat-l">Subscribers reading</div></div>
+    <div class="a a3"><div class="stat-n" data-target="98" data-suffix="%">0</div><div class="stat-l">Renew every year</div></div>
+    <div class="a a4"><div class="stat-n" data-target="240" data-suffix="+">0</div><div class="stat-l">Issues published</div></div>
+  </div>
+  <span class="scroll-cue">One more</span>
+</section>
+
+<!-- ── SCENE 7 · CONTACT ── -->
+<section class="scene" id="s7" data-i="7" aria-label="Checkout">
+  <h2 class="contact-head a a1" id="contact-h">Choose how you read.</h2>
+  <p class="contact-sub a a2" id="contact-sub">Subscribe for everything, or pay per article. Cancel anytime.</p>
+
+  <div class="checkout a a3" id="checkout">
+
+    <!-- mode toggle: subscribe vs pay-per-article -->
+    <div class="mode-toggle" id="mode-toggle" role="tablist" aria-label="Purchase mode">
+      <span class="mode-pill" id="mode-pill" aria-hidden="true"></span>
+      <button type="button" class="mode-btn on" data-mode="sub" role="tab" id="mode-sub">Subscribe</button>
+      <button type="button" class="mode-btn" data-mode="ppv" role="tab" id="mode-ppv">Pay per article</button>
+    </div>
+
+    <!-- STEP PANELS -->
+    <div class="steps" id="steps">
+
+      <!-- ══ SUBSCRIBE: plan cards ══ -->
+      <div class="panel plans-panel" id="panel-plans">
+        <div class="plan-grid" id="plan-grid">
+          <button type="button" class="plan" data-plan="Free" data-price="0" data-cycle="">
+            <span class="plan-name">Free</span>
+            <span class="plan-price"><b data-amt>$0</b></span>
+            <span class="plan-feat">Weekly headlines<br>1 free deep-dive / mo</span>
+          </button>
+          <button type="button" class="plan popular" data-plan="Pro" data-price="12" data-cycle="mo">
+            <span class="plan-badge" id="badge-pop">Popular</span>
+            <span class="plan-name">Pro</span>
+            <span class="plan-price"><b data-amt>$12</b><i data-per>/mo</i></span>
+            <span class="plan-feat">Every deep-dive<br>Full code vault<br>Quarterly reports</span>
+          </button>
+          <button type="button" class="plan" data-plan="Team" data-price="49" data-cycle="mo">
+            <span class="plan-name">Team</span>
+            <span class="plan-price"><b data-amt>$49</b><i data-per>/mo</i></span>
+            <span class="plan-feat">Everything in Pro<br>5 seats<br>Priority Q&amp;A</span>
+          </button>
+          <button type="button" class="plan" data-plan="Lifetime" data-price="399" data-cycle="once">
+            <span class="plan-name">Lifetime</span>
+            <span class="plan-price"><b data-amt>$399</b><i data-per>once</i></span>
+            <span class="plan-feat">Pay once, keep forever<br>All future issues</span>
+          </button>
+        </div>
+        <!-- billing cycle switch (monthly / yearly -20%) -->
+        <div class="cycle" id="cycle-row">
+          <span class="cycle-lbl" id="cyc-month">Monthly</span>
+          <button type="button" class="cycle-switch" id="cycle-switch" role="switch" aria-checked="false" aria-label="Billing cycle"><span class="knob"></span></button>
+          <span class="cycle-lbl" id="cyc-year">Yearly <em class="save" id="cyc-save">save 20%</em></span>
+        </div>
+      </div>
+
+      <!-- ══ PAY PER ARTICLE: article list ══ -->
+      <div class="panel ppv-panel" id="panel-ppv" hidden>
+        <div class="art-list" id="art-list">
+          <button type="button" class="art" data-art="Rust async internals" data-price="4">
+            <span class="art-meta"><span class="art-tag">Systems</span><span class="art-time">22 min</span></span>
+            <span class="art-title">Rust async, demystified</span>
+            <span class="art-add"><span class="art-price">$4</span><span class="art-plus">+</span></span>
+          </button>
+          <button type="button" class="art" data-art="Edge infra teardown" data-price="5">
+            <span class="art-meta"><span class="art-tag">Infra</span><span class="art-time">28 min</span></span>
+            <span class="art-title">The edge infra teardown</span>
+            <span class="art-add"><span class="art-price">$5</span><span class="art-plus">+</span></span>
+          </button>
+          <button type="button" class="art" data-art="LLM eval that works" data-price="4">
+            <span class="art-meta"><span class="art-tag">AI</span><span class="art-time">19 min</span></span>
+            <span class="art-title">LLM evals that actually work</span>
+            <span class="art-add"><span class="art-price">$4</span><span class="art-plus">+</span></span>
+          </button>
+          <button type="button" class="art" data-art="Postgres at scale" data-price="6">
+            <span class="art-meta"><span class="art-tag">Data</span><span class="art-time">31 min</span></span>
+            <span class="art-title">Postgres at serious scale</span>
+            <span class="art-add"><span class="art-price">$6</span><span class="art-plus">+</span></span>
+          </button>
+        </div>
+        <p class="ppv-hint" id="ppv-hint">Tap to add to your cart. Bundle 3+ and save 15%.</p>
+      </div>
+    </div>
+
+    <!-- ══ LIVE ORDER SUMMARY ══ -->
+    <div class="summary" id="summary">
+      <div class="sum-rows" id="sum-rows"></div>
+      <div class="sum-total">
+        <span id="sum-total-lbl">Total</span>
+        <span class="sum-amt" id="sum-amt">$0</span>
+      </div>
+      <button class="pay-btn" id="pay-btn" type="button" onclick="openPay()" disabled>
+        <span class="pay-txt" id="pay-txt">Select a plan</span>
+        <span class="pay-amt" id="pay-amt"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ PAYMENT SHEET (slides up) ══ -->
+  <div class="pay-sheet" id="pay-sheet" aria-hidden="true">
+    <div class="sheet-card" id="sheet-card" role="dialog" aria-modal="true" aria-label="Payment">
+      <button class="sheet-close" id="sheet-close" type="button" aria-label="Close">✕</button>
+
+      <div class="sheet-body" id="sheet-body">
+        <h3 class="sheet-h" id="sheet-h">Payment</h3>
+
+        <!-- live credit card that flips -->
+        <div class="cc" id="cc">
+          <div class="cc-inner" id="cc-inner">
+            <div class="cc-face cc-front">
+              <div class="cc-row1"><span class="cc-chip"></span><span class="cc-brand" id="cc-brand">CARD</span></div>
+              <div class="cc-num" id="cc-num">•••• •••• •••• ••••</div>
+              <div class="cc-row3">
+                <span><small id="cc-name-l">Card holder</small><br><b id="cc-name">YOUR NAME</b></span>
+                <span><small id="cc-exp-l">Expires</small><br><b id="cc-exp">MM/YY</b></span>
+              </div>
+            </div>
+            <div class="cc-face cc-back">
+              <div class="cc-stripe"></div>
+              <div class="cc-cvc-row"><span class="cc-cvc" id="cc-cvc">•••</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pay-fields">
+          <div class="fg ff">
+            <input type="text" id="pf-name" placeholder=" " autocomplete="cc-name">
+            <label for="pf-name" id="lpf-name">Name on card</label>
+          </div>
+          <div class="fg ff">
+            <input type="text" id="pf-num" placeholder=" " inputmode="numeric" maxlength="19" autocomplete="cc-number">
+            <label for="pf-num" id="lpf-num">Card number</label>
+            <span class="brand-dot" id="brand-dot"></span>
+          </div>
+          <div class="f2">
+            <div class="fg ff">
+              <input type="text" id="pf-exp" placeholder=" " inputmode="numeric" maxlength="5" autocomplete="cc-exp">
+              <label for="pf-exp" id="lpf-exp">MM / YY</label>
+            </div>
+            <div class="fg ff">
+              <input type="text" id="pf-cvc" placeholder=" " inputmode="numeric" maxlength="4" autocomplete="cc-csc">
+              <label for="pf-cvc" id="lpf-cvc">CVC</label>
+            </div>
+          </div>
+          <div class="fg ff">
+            <input type="email" id="pf-email" placeholder=" " autocomplete="email">
+            <label for="pf-email" id="lpf-email">Email for receipt</label>
+          </div>
+        </div>
+
+        <button class="confirm-btn" id="confirm-btn" type="button" onclick="confirmPay()">
+          <span class="cf-txt" id="cf-txt">Pay</span>
+          <span class="cf-amt" id="cf-amt"></span>
+          <span class="cf-lock" aria-hidden="true">🔒</span>
+        </button>
+        <p class="pay-secure" id="pay-secure">🔒 Encrypted &amp; secure · This is a demo — no real charge.</p>
+      </div>
+
+      <!-- success -->
+      <div class="sheet-done" id="sheet-done" role="alert" aria-live="polite">
+        <svg class="done-check" width="84" height="84" viewBox="0 0 84 84" fill="none" aria-hidden="true">
+          <circle class="dc-ring" cx="42" cy="42" r="38" stroke="#1B9C5A" stroke-width="3" fill="none"/>
+          <path class="dc-tick" d="M26 43l11 11 21-23" stroke="#1B9C5A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+        <h3 class="done-h" id="done-h">Payment complete.</h3>
+        <p class="done-p" id="done-p">Access unlocked. Check your inbox for the receipt.</p>
+        <button class="done-again" type="button" onclick="resetCheckout()" id="done-again">Done ↺</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="contact-foot a a4">© 2026 The Morgan Brief ·
+    <a href="#" rel="noopener noreferrer">LinkedIn</a>
+    <a href="#" rel="noopener noreferrer">Twitter</a>
+    <a href="#" rel="noopener noreferrer">Email</a>
+  </p>
+</section>
+
+<script>
+var reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var CURLBL={drag:'Drag me',open:'Open \u203A'};
+function goTo(id){var el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth'});}
+
+/* letter stagger */
+function doSplit(el,text){
+  var base=parseInt(el.dataset.delay||0);
+  el.textContent='';el.setAttribute('aria-label',text);
+  Array.from(text).forEach(function(c,i){
+    var sp=document.createElement('span');
+    sp.className='ch';sp.setAttribute('aria-hidden','true');
+    sp.textContent=c===' '?'\u00A0':c;
+    sp.style.animationDelay=(base+i*38)+'ms';
+    el.appendChild(sp);
+  });
+}
+document.querySelectorAll('[data-split]').forEach(function(el){doSplit(el,el.textContent);});
+
+/* dots */
+document.querySelectorAll('.dot').forEach(function(d){
+  d.addEventListener('click',function(){goTo(this.dataset.go);});
+});
+
+/* statement words */
+var stEl=document.getElementById('statement-text');
+var wSpans;
+function buildStatement(text,cjk){
+  stEl.setAttribute('aria-label',text);
+  var toks=cjk?Array.from(text):text.split(' ');
+  stEl.innerHTML=toks.map(function(w){return '<span class="w" aria-hidden="true">'+w+'</span>';}).join(cjk?'':' ');
+  wSpans=stEl.querySelectorAll('.w');
+}
+buildStatement(stEl.textContent,false);
+
+/* scene activation: live class, dots, counter, bg morph, ghost number */
+var scenes=document.querySelectorAll('.scene');
+var dots=document.querySelectorAll('.dot');
+var ghost=document.getElementById('ghost');
+var cnt=document.getElementById('cnt');
+var darkScenes=[4,6];
+var sceneIO=new IntersectionObserver(function(entries){
+  entries.forEach(function(e){
+    if(e.isIntersecting){
+      var i=parseInt(e.target.dataset.i);
+      e.target.classList.add('live');
+      document.body.dataset.scene=i;
+      document.body.classList.toggle('dark-scene',darkScenes.indexOf(i)>-1);
+      dots.forEach(function(d,j){d.classList.toggle('on',j===i);});
+      var n=('0'+(i+1)).slice(-2);
+      ghost.textContent=n;cnt.textContent=n;
+      /* counters */
+      e.target.querySelectorAll('[data-target]').forEach(runCounter);
+      /* statement word sweep when its scene becomes live */
+      if(i===1)sweepWords();
+    }
+  });
+},{threshold:0.55});
+scenes.forEach(function(s){sceneIO.observe(s);});
+
+function sweepWords(){
+  wSpans.forEach(function(w,i){
+    setTimeout(function(){w.classList.add('lit');},120+i*95);
+  });
+}
+
+function runCounter(n){
+  if(n.dataset.done)return;n.dataset.done='1';
+  var tgt=parseInt(n.dataset.target),suf=n.dataset.suffix||'';
+  var t0=performance.now(),dur=1700;
+  (function tick(now){
+    var p=Math.min((now-t0)/dur,1),ease=1-Math.pow(1-p,5);
+    n.textContent=Math.round(ease*tgt)+suf;
+    if(p<1)requestAnimationFrame(tick);
+  })(t0);
+}
+
+/* progress + hero parallax */
+var progress=document.getElementById('progress');
+var heroContent=document.getElementById('hero-content');
+var ticking=false;
+window.addEventListener('scroll',function(){
+  if(ticking)return;ticking=true;
+  requestAnimationFrame(function(){
+    var y=window.scrollY,h=window.innerHeight,doc=document.documentElement;
+    progress.style.transform='scaleX('+(y/(doc.scrollHeight-h))+')';
+    if(!reduceMotion){
+      var p=Math.min(y/(h*0.9),1);
+      heroContent.style.transform='translateY('+(y*0.3)+'px) scale('+(1-p*0.12)+')';
+      heroContent.style.opacity=String(1-p*1.05);
+      heroContent.style.filter='blur('+(p*7)+'px)';
+    }
+    ticking=false;
+  });
+},{passive:true});
+
+/* chip 3D tilt */
+if(!reduceMotion){
+  document.querySelectorAll('[data-tilt]').forEach(function(chip){
+    var scene=chip.closest('.scene');
+    if(!scene)return;
+    scene.addEventListener('mousemove',function(e){
+      if(chip.dataset.drag)return;
+      var r=scene.getBoundingClientRect();
+      var x=(e.clientX-r.left)/r.width-0.5;
+      var y=(e.clientY-r.top)/r.height-0.5;
+      chip.style.transform='perspective(900px) rotateY('+(x*16)+'deg) rotateX('+(-y*14)+'deg)';
+    });
+    scene.addEventListener('mouseleave',function(){if(!chip.dataset.drag)chip.style.transform='';});
+  });
+}
+
+/* magnetic */
+if(!reduceMotion){
+  document.querySelectorAll('.magnetic').forEach(function(b){
+    b.addEventListener('mousemove',function(e){
+      var r=this.getBoundingClientRect();
+      this.style.transform='translate('+((e.clientX-r.left-r.width/2)*0.3)+'px,'+((e.clientY-r.top-r.height/2)*0.45)+'px) scale(1.05)';
+    });
+    b.addEventListener('mouseleave',function(){this.style.transform='';});
+  });
+}
+
+
+/* ── Cursor 2.0 (restored): reticle, comet tail, gravity hold, drag chips ── */
+(function(){
+  var cur=document.getElementById('cur'),ring=document.getElementById('curR');
+  if(reduceMotion||!window.matchMedia('(pointer:fine)').matches){
+    cur.style.display='none';ring.style.display='none';return;
+  }
+  document.body.classList.add('cursor-on');
+  var lbl=document.getElementById('curLbl');
+  var rot=0;
+  function setRing(cls){
+    ring.classList.remove('locked','label-mode','beam-mode');
+    if(cls)ring.classList.add(cls);
+  }
+  /* native zone = checkout area + open payment sheet; checked every frame */
+  var inForm=false;
+  var zoneEl=document.getElementById('checkout');
+  var sheetEl=document.getElementById('pay-sheet');
+  function setForm(v){
+    if(v===inForm)return;
+    inForm=v;
+    document.body.classList.toggle('form-zone',v);
+    trail.length=0;sparks.length=0;orbits.length=0;
+    if(v){mode='free';wrapEl=null;lbl.textContent='';setRing('');}
+    else{R.x=mx;R.y=my;lastMove=performance.now();}
+  }
+  var fx=document.getElementById('fx'),ctx=fx.getContext('2d');
+  function sizeFx(){fx.width=innerWidth;fx.height=innerHeight;}
+  sizeFx();addEventListener('resize',sizeFx);
+
+  var mx=innerWidth/2,my=innerHeight/2,vx=0,vy=0;
+  var lastMove=performance.now();
+  var mode='free',wrapEl=null;
+  var R={x:mx,y:my,w:38,h:38,r:19};
+  var down=false,downT=0;
+  var trail=[],sparks=[],orbits=[],bursts=[];
+  var hue=210;
+
+  document.addEventListener('mousemove',function(e){
+    vx=e.clientX-mx;vy=e.clientY-my;
+    mx=e.clientX;my=e.clientY;
+    lastMove=performance.now();
+    if(!inForm){
+      trail.push({x:mx,y:my,t:lastMove});
+      if(Math.hypot(vx,vy)>18)
+        sparks.push({x:mx,y:my,vx:(Math.random()-.5)*1.5,vy:-Math.random()*1.5-.5,
+          life:1,r:1.5+Math.random()*2,h:hue+Math.random()*80});
+    }
+  });
+
+  document.addEventListener('mouseover',function(e){
+    if(inForm||(e.target.closest&&e.target.closest('#checkout,#pay-sheet')))return;
+    var t=e.target;
+    var btn=t.closest('button,.dot');
+    var chip=t.closest('.big-chip');
+    var link=t.closest('.link-blue');
+    var field=t.closest('input,textarea,select');
+    if(btn){mode='wrap';wrapEl=btn;lbl.textContent='';setRing('locked');}
+    else if(chip){mode='label';lbl.textContent=CURLBL.drag;setRing('label-mode');}
+    else if(link){mode='label';lbl.textContent=CURLBL.open;setRing('label-mode');}
+    else if(field){mode='beam';lbl.textContent='';setRing('beam-mode');}
+  });
+  document.addEventListener('mouseout',function(e){
+    if(e.target.closest&&e.target.closest('button,.dot,.big-chip,.link-blue,input,textarea,select')){
+      mode='free';wrapEl=null;lbl.textContent='';setRing('');
+    }
+  });
+
+  document.addEventListener('mousedown',function(){down=true;downT=performance.now();});
+  document.addEventListener('mouseup',function(){
+    down=false;
+    if(inForm)return;
+    if(orbits.length){
+      orbits.forEach(function(o){
+        bursts.push({x:mx+Math.cos(o.a)*o.rad,y:my+Math.sin(o.a)*o.rad,
+          vx:Math.cos(o.a)*(3+o.rad*0.07),vy:Math.sin(o.a)*(3+o.rad*0.07),life:1,h:o.h});
+      });
+      orbits=[];
+    }else{
+      for(var i=0;i<10;i++){var a=Math.PI*2*i/10;
+        bursts.push({x:mx,y:my,vx:Math.cos(a)*2.6,vy:Math.sin(a)*2.6,life:1,h:hue+i*12});}
+    }
+  });
+  document.addEventListener('mouseleave',function(){document.body.classList.add('cursor-hidden');});
+  document.addEventListener('mouseenter',function(){document.body.classList.remove('cursor-hidden');});
+
+  function frame(now){
+    hue=(hue+0.6)%360;
+    /* geometric zone check: self-healing every frame */
+    var sheetOpen=sheetEl&&sheetEl.classList.contains('open');
+    var ddEl=document.getElementById('lang-dd');
+    var ddOpen=ddEl&&ddEl.classList.contains('open');
+    if(sheetOpen||ddOpen)setForm(true);
+    else if(zoneEl){
+      var fr=zoneEl.getBoundingClientRect();
+      setForm(fr.width>0&&mx>=fr.left&&mx<=fr.right&&my>=fr.top&&my<=fr.bottom);
+    }else setForm(false);
+
+    var sp=Math.hypot(vx,vy);vx*=0.82;vy*=0.82;
+    var ang=Math.atan2(vy,vx);
+    cur.style.transform='translate('+mx+'px,'+my+'px) translate(-50%,-50%) rotate('+ang+
+      'rad) scale('+(1+Math.min(sp/55,.8))+','+(1-Math.min(sp/130,.4))+')';
+
+    var tx=mx,ty=my,tw=38,th=38,tr=19,lerp=0.16;
+    if(mode==='wrap'&&wrapEl){
+      var b=wrapEl.getBoundingClientRect();
+      var cx=b.left+b.width/2,cy=b.top+b.height/2;
+      tx=cx+(mx-cx)*0.18;ty=cy+(my-cy)*0.18;
+      tw=b.width+14;th=b.height+14;
+      var br=parseFloat(getComputedStyle(wrapEl).borderRadius)||12;
+      tr=Math.min(br+7,th/2);lerp=0.22;
+    }else if(mode==='label'){tw=72;th=72;tr=36;}
+    else if(mode==='beam'){tw=4;th=30;tr=2;}
+    else{
+      if(down){tw=26;th=26;tr=13;}
+      else if(now-lastMove>1800){var br2=Math.sin(now/350)*4;tw=38+br2;th=38+br2;tr=th/2;}
+    }
+    R.x+=(tx-R.x)*lerp;R.y+=(ty-R.y)*lerp;
+    R.w+=(tw-R.w)*0.2;R.h+=(th-R.h)*0.2;R.r+=(tr-R.r)*0.2;
+    var targetRot;
+    if(mode==='wrap'||mode==='beam'){targetRot=Math.round(rot/(Math.PI/2))*(Math.PI/2);rot+=(targetRot-rot)*0.2;}
+    else{rot+=down?0.07:0.012;}
+    ring.style.width=R.w+'px';ring.style.height=R.h+'px';
+    if(ring.classList.contains('label-mode'))ring.style.borderRadius='99px';
+    ring.style.transform='translate('+R.x+'px,'+R.y+'px) translate(-50%,-50%) rotate('+
+      (mode==='label'?0:rot)+'rad)';
+
+    ctx.clearRect(0,0,fx.width,fx.height);
+    var cutoff=now-420;
+    trail=trail.filter(function(pt){return pt.t>cutoff;});
+    for(var i=1;i<trail.length;i++){
+      var al=(trail[i].t-cutoff)/420;
+      ctx.strokeStyle='hsla('+(hue+i*3)+',85%,60%,'+(al*0.45)+')';
+      ctx.lineWidth=al*5;ctx.lineCap='round';
+      ctx.beginPath();ctx.moveTo(trail[i-1].x,trail[i-1].y);ctx.lineTo(trail[i].x,trail[i].y);ctx.stroke();
+    }
+    if(mode==='free'&&!inForm){
+      for(var k=0;k<2;k++){
+        var sa=now/(560+k*240)*(k?-1:1)+k*Math.PI;
+        var srad=24+k*9+Math.sin(now/700+k)*3;
+        ctx.beginPath();ctx.arc(R.x+Math.cos(sa)*srad,R.y+Math.sin(sa)*srad,1.8,0,7);
+        ctx.fillStyle='hsla('+(hue+k*140)+',90%,62%,.9)';ctx.fill();
+        for(var q=1;q<=3;q++){
+          var ta=sa-(k?-1:1)*q*0.18;
+          ctx.beginPath();
+          ctx.arc(R.x+Math.cos(ta)*srad,R.y+Math.sin(ta)*srad,1.8-q*0.45,0,7);
+          ctx.fillStyle='hsla('+(hue+k*140)+',90%,62%,'+(0.5-q*0.14)+')';ctx.fill();
+        }
+      }
+    }
+    if(down&&!inForm&&now-downT>260&&orbits.length<16&&Math.random()<.5)
+      orbits.push({a:Math.random()*6.28,rad:18+Math.random()*30,
+        spd:0.05+Math.random()*0.07,h:hue+Math.random()*120,r:1.5+Math.random()*2});
+    orbits.forEach(function(o){
+      o.a+=o.spd;
+      ctx.beginPath();ctx.arc(mx+Math.cos(o.a)*o.rad,my+Math.sin(o.a)*o.rad,o.r,0,7);
+      ctx.fillStyle='hsla('+o.h+',90%,65%,.85)';ctx.fill();
+    });
+    sparks=sparks.filter(function(pt){return pt.life>0;});
+    sparks.forEach(function(pt){
+      pt.x+=pt.vx;pt.y+=pt.vy;pt.vy+=0.02;pt.life-=0.025;
+      ctx.beginPath();ctx.arc(pt.x,pt.y,Math.max(pt.r*pt.life,.1),0,7);
+      ctx.fillStyle='hsla('+pt.h+',90%,62%,'+(pt.life*0.8)+')';ctx.fill();
+    });
+    bursts=bursts.filter(function(bt){return bt.life>0;});
+    bursts.forEach(function(bt){
+      bt.x+=bt.vx;bt.y+=bt.vy;bt.vx*=0.94;bt.vy*=0.94;bt.life-=0.03;
+      ctx.beginPath();ctx.arc(bt.x,bt.y,Math.max(2.4*bt.life,.1),0,7);
+      ctx.fillStyle='hsla('+bt.h+',90%,62%,'+bt.life+')';ctx.fill();
+    });
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+/* ── Draggable chips: grab, throw, spring back ── */
+(function(){
+  if(reduceMotion)return;
+  document.querySelectorAll('.big-chip').forEach(function(chip){
+    var dx=0,dy=0,sx=0,sy=0,velx=0,vely=0,held=false;
+    function apply(sc){
+      chip.style.transform='translate('+dx+'px,'+dy+'px) rotate('+(dx*0.05)+'deg) scale('+(sc||1)+')';
+    }
+    chip.addEventListener('pointerdown',function(e){
+      e.preventDefault();held=true;chip.dataset.drag='1';
+      chip.setPointerCapture(e.pointerId);
+      sx=e.clientX-dx;sy=e.clientY-dy;apply(1.07);
+    });
+    chip.addEventListener('pointermove',function(e){
+      if(!held)return;
+      var nx=e.clientX-sx,ny=e.clientY-sy;
+      velx=nx-dx;vely=ny-dy;dx=nx;dy=ny;apply(1.07);
+    });
+    function release(){
+      if(!held)return;held=false;
+      (function spring(){
+        if(held)return;
+        velx+=-dx*0.085-velx*0.14;vely+=-dy*0.085-vely*0.14;
+        dx+=velx;dy+=vely;
+        if(Math.abs(dx)<.4&&Math.abs(dy)<.4&&Math.abs(velx)<.4&&Math.abs(vely)<.4){
+          dx=dy=velx=vely=0;chip.style.transform='';delete chip.dataset.drag;return;
+        }
+        apply(1);requestAnimationFrame(spring);
+      })();
+    }
+    chip.addEventListener('pointerup',release);
+    chip.addEventListener('pointercancel',release);
+  });
+})();
+
+/* particles */
+(function(){
+  var cv=document.getElementById('stars'),ctx=cv.getContext('2d');
+  var stars=[],W,H,mx=-999,my=-999,visible=false;
+  function resize(){
+    var r=cv.parentElement.getBoundingClientRect();
+    W=cv.width=r.width;H=cv.height=r.height;stars=[];
+    var n=Math.min(Math.floor(W*H/9000),140);
+    for(var i=0;i<n;i++)stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.4+.4,
+      vx:(Math.random()-.5)*.18,vy:(Math.random()-.5)*.18,tw:Math.random()*6.28});
+  }
+  resize();window.addEventListener('resize',resize);
+  cv.parentElement.addEventListener('mousemove',function(e){
+    var r=cv.getBoundingClientRect();mx=e.clientX-r.left;my=e.clientY-r.top;});
+  cv.parentElement.addEventListener('mouseleave',function(){mx=-999;my=-999;});
+  new IntersectionObserver(function(en){visible=en[0].isIntersecting;},{threshold:.05}).observe(cv);
+  (function frame(t){
+    if(visible&&!reduceMotion){
+      ctx.clearRect(0,0,W,H);
+      stars.forEach(function(s){
+        s.x+=s.vx;s.y+=s.vy;
+        if(s.x<0)s.x=W;if(s.x>W)s.x=0;if(s.y<0)s.y=H;if(s.y>H)s.y=0;
+        var dx=mx-s.x,dy=my-s.y,d=Math.sqrt(dx*dx+dy*dy);
+        if(d<160){s.x+=dx/d*.4;s.y+=dy/d*.4;}
+        ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,7);
+        ctx.fillStyle='rgba(255,255,255,'+(.35+Math.sin(t/700+s.tw)*.3)+')';ctx.fill();
+      });
+    }
+    requestAnimationFrame(frame);
+  })(0);
+})();
+
+/* ════ CHECKOUT ENGINE ════ */
+/* T = active-language string table; English defaults until setLang() runs */
+var T={plans:{Free:'Free',Pro:'Pro',Team:'Team',Lifetime:'Lifetime'},drag:'Drag me',open:'Open \u203A',
+  ckYearSave:'Yearly discount (20%)',ckBundle:'Bundle discount (15%)',ckGetFree:'Start free',ckSubscribe:'Subscribe',ckUnlock:'Unlock now',
+  ckPickPlan:'Select a plan',ckPickArt:'Add an article',ckPayPlan:'Pay',ckPayUnlock:'Pay & unlock',
+  ckFreeDone:"You're in.",ckFreeSub:'Your free account is ready. Check your inbox.',
+  ckDonePlanH:'Subscription active.',ckDonePlanP:'Welcome to {p}. Receipt sent to your inbox.',
+  ckDoneArtH:'Articles unlocked.',ckDoneArtP:'{n} article(s) unlocked. Receipt sent.'};
+var CK={mode:'sub',plan:null,planPrice:0,planCycle:'',yearly:false,arts:[]};
+var contactH=document.getElementById('contact-h');
+
+/* ---- mode toggle ---- */
+var modeToggle=document.getElementById('mode-toggle');
+document.querySelectorAll('.mode-btn').forEach(function(b){
+  b.addEventListener('click',function(){
+    CK.mode=this.dataset.mode;
+    document.querySelectorAll('.mode-btn').forEach(function(x){x.classList.toggle('on',x===b);});
+    modeToggle.classList.toggle('ppv',CK.mode==='ppv');
+    document.getElementById('panel-plans').hidden=CK.mode!=='sub';
+    document.getElementById('panel-ppv').hidden=CK.mode!=='ppv';
+    renderSummary();
+  });
+});
+
+/* ---- plan select ---- */
+document.querySelectorAll('.plan').forEach(function(pl){
+  pl.addEventListener('click',function(){
+    document.querySelectorAll('.plan').forEach(function(x){x.classList.toggle('sel',x===pl);});
+    CK.plan=pl.dataset.plan;CK.planPrice=parseInt(pl.dataset.price);CK.planCycle=pl.dataset.cycle;
+    renderSummary();
+  });
+});
+
+/* ---- billing cycle ---- */
+var cycSwitch=document.getElementById('cycle-switch');
+cycSwitch.addEventListener('click',function(){
+  CK.yearly=!CK.yearly;
+  this.setAttribute('aria-checked',CK.yearly?'true':'false');
+  document.getElementById('cyc-month').style.color=CK.yearly?'':'var(--ink)';
+  document.getElementById('cyc-year').style.color=CK.yearly?'var(--ink)':'';
+  /* update visible monthly amounts on cards */
+  document.querySelectorAll('.plan').forEach(function(pl){
+    var base=parseInt(pl.dataset.price),cyc=pl.dataset.cycle,amt=pl.querySelector('[data-amt]'),per=pl.querySelector('[data-per]');
+    if(cyc==='mo'){
+      if(CK.yearly){amt.textContent='$'+Math.round(base*12*0.8);if(per)per.textContent='/yr';}
+      else{amt.textContent='$'+base;if(per)per.textContent='/mo';}
+    }
+  });
+  renderSummary();
+});
+
+/* ---- article select ---- */
+document.querySelectorAll('.art').forEach(function(ar){
+  ar.addEventListener('click',function(){
+    var name=ar.dataset.art,price=parseInt(ar.dataset.price);
+    var i=CK.arts.findIndex(function(a){return a.name===name;});
+    if(i>-1){CK.arts.splice(i,1);ar.classList.remove('sel');}
+    else{CK.arts.push({name:name,price:price});ar.classList.add('sel');}
+    renderSummary();
+  });
+});
+
+/* ---- live summary ---- */
+function fmt(n){return '$'+n.toFixed(n%1?2:0);}
+function calcTotal(){
+  if(CK.mode==='sub'){
+    if(!CK.plan)return {rows:[],total:0};
+    var rows=[],total=CK.planPrice;
+    var per=CK.planCycle==='mo'?(CK.yearly?'/yr':'/mo'):(CK.planCycle==='once'?' once':'');
+    if(CK.planCycle==='mo'&&CK.yearly)total=Math.round(CK.planPrice*12*0.8);
+    rows.push({label:(T.plans[CK.plan]||CK.plan)+(per?' ('+per.trim()+')':''),amt:fmt(total)});
+    if(CK.planCycle==='mo'&&CK.yearly){
+      var full=CK.planPrice*12;
+      rows.push({label:T.ckYearSave||'Yearly discount (20%)',amt:'−'+fmt(full-total),disc:true});
+    }
+    return {rows:rows,total:total};
+  }else{
+    var rows=[],sum=0;
+    CK.arts.forEach(function(a){rows.push({label:a.name,amt:fmt(a.price)});sum+=a.price;});
+    var total=sum;
+    if(CK.arts.length>=3){var d=sum*0.15;total=sum-d;
+      rows.push({label:(T.ckBundle||'Bundle discount (15%)'),amt:'−'+fmt(d),disc:true});}
+    return {rows:rows,total:total};
+  }
+}
+function renderSummary(){
+  var r=calcTotal();
+  var box=document.getElementById('sum-rows');
+  box.innerHTML=r.rows.map(function(row){
+    return '<div class="sum-row'+(row.disc?' discount':'')+'"><span class="sr-label">'+row.label+'</span><span class="sr-amt">'+row.amt+'</span></div>';
+  }).join('');
+  var amtEl=document.getElementById('sum-amt');
+  amtEl.textContent=fmt(r.total);
+  amtEl.classList.remove('bump');void amtEl.offsetWidth;amtEl.classList.add('bump');
+  var btn=document.getElementById('pay-btn');
+  var ok=r.total>0||(CK.mode==='sub'&&CK.plan==='Free');
+  btn.disabled=!ok;
+  var txt=document.getElementById('pay-txt'),pamt=document.getElementById('pay-amt');
+  if(CK.mode==='sub'&&CK.plan==='Free'){txt.textContent=T.ckGetFree||'Start free';pamt.textContent='';}
+  else if(ok){txt.textContent=(CK.mode==='sub'?(T.ckSubscribe||'Subscribe'):(T.ckUnlock||'Unlock now'));pamt.textContent='· '+fmt(r.total);}
+  else{txt.textContent=(CK.mode==='sub'?(T.ckPickPlan||'Select a plan'):(T.ckPickArt||'Add an article'));pamt.textContent='';}
+}
+renderSummary();
+
+/* ════ PAYMENT SHEET ════ */
+var sheet=document.getElementById('pay-sheet');
+var sheetCard=document.getElementById('sheet-card');
+function openPay(){
+  var r=calcTotal();
+  if(CK.mode==='sub'&&CK.plan==='Free'){ /* free: skip card, go straight to success */
+    sheetCard.classList.add('paid');
+    document.getElementById('done-h').textContent=T.ckFreeDone||"You're in.";
+    document.getElementById('done-p').textContent=T.ckFreeSub||'Your free account is ready. Check your inbox.';
+  }else{
+    sheetCard.classList.remove('paid');
+    var amt=fmt(r.total);
+    document.getElementById('cf-amt').textContent='· '+amt;
+    var totLbl=CK.mode==='sub'?(T.ckPayPlan||'Pay'):(T.ckPayUnlock||'Pay & unlock');
+    document.getElementById('cf-txt').textContent=totLbl;
+  }
+  sheet.classList.add('open');sheet.setAttribute('aria-hidden','false');
+}
+function closePay(){sheet.classList.remove('open');sheet.setAttribute('aria-hidden','true');}
+document.getElementById('sheet-close').addEventListener('click',closePay);
+sheet.addEventListener('click',function(e){if(e.target===sheet)closePay();});
+
+/* ---- live credit card binding ---- */
+var pfName=document.getElementById('pf-name'),pfNum=document.getElementById('pf-num'),
+    pfExp=document.getElementById('pf-exp'),pfCvc=document.getElementById('pf-cvc'),
+    pfEmail=document.getElementById('pf-email');
+var ccEl=document.getElementById('cc');
+function detectBrand(num){
+  if(/^4/.test(num))return 'VISA';
+  if(/^5[1-5]/.test(num)||/^2[2-7]/.test(num))return 'MASTERCARD';
+  if(/^3[47]/.test(num))return 'AMEX';
+  if(/^6/.test(num))return 'DISCOVER';
+  return 'CARD';
+}
+pfName.addEventListener('input',function(){
+  document.getElementById('cc-name').textContent=this.value.trim().toUpperCase()||'YOUR NAME';
+});
+pfNum.addEventListener('input',function(){
+  var v=this.value.replace(/\D/g,'').slice(0,16);
+  var grp=v.match(/.{1,4}/g);this.value=grp?grp.join(' '):'';
+  var disp=(this.value+' •••• •••• •••• ••••').slice(0,19);
+  document.getElementById('cc-num').textContent=disp;
+  var brand=detectBrand(v);
+  document.getElementById('cc-brand').textContent=brand;
+  document.getElementById('brand-dot').textContent=brand==='CARD'?'':brand;
+});
+pfExp.addEventListener('input',function(){
+  var v=this.value.replace(/\D/g,'').slice(0,4);
+  if(v.length>=3)v=v.slice(0,2)+'/'+v.slice(2);
+  this.value=v;
+  document.getElementById('cc-exp').textContent=v||'MM/YY';
+});
+pfCvc.addEventListener('focus',function(){ccEl.classList.add('flip');});
+pfCvc.addEventListener('blur',function(){ccEl.classList.remove('flip');});
+pfCvc.addEventListener('input',function(){
+  this.value=this.value.replace(/\D/g,'').slice(0,4);
+  document.getElementById('cc-cvc').textContent=this.value||'•••';
+});
+
+function confirmPay(){
+  /* light validation */
+  var num=pfNum.value.replace(/\s/g,'');
+  if(pfName.value.trim().length<2||num.length<13||pfExp.value.length<4||pfCvc.value.length<3){
+    [pfName,pfNum,pfExp,pfCvc].forEach(function(el){
+      var ok=el===pfName?el.value.trim().length>=2:
+             el===pfNum?num.length>=13:
+             el===pfExp?el.value.length>=4:el.value.length>=3;
+      var ff=el.closest('.ff');
+      if(!ff)return;
+      if(!ok){ff.classList.remove('error');void ff.offsetWidth;ff.classList.add('error');}
+    });
+    return;
+  }
+  var btn=document.getElementById('confirm-btn');
+  btn.classList.add('loading');
+  setTimeout(function(){
+    btn.classList.remove('loading');
+    sheetCard.classList.add('paid');
+    var r=calcTotal();
+    if(CK.mode==='sub'){
+      document.getElementById('done-h').textContent=T.ckDonePlanH||'Subscription active.';
+      document.getElementById('done-p').textContent=(T.ckDonePlanP||'Welcome to {p}. Receipt sent to your inbox.').replace('{p}',T.plans[CK.plan]||CK.plan);
+    }else{
+      document.getElementById('done-h').textContent=T.ckDoneArtH||'Articles unlocked.';
+      document.getElementById('done-p').textContent=(T.ckDoneArtP||'{n} article(s) unlocked. Receipt sent.').replace('{n}',CK.arts.length);
+    }
+    confettiAt(sheetCard);
+  },1300);
+}
+function resetCheckout(){
+  closePay();
+  setTimeout(function(){
+    sheetCard.classList.remove('paid');
+    [pfName,pfNum,pfExp,pfCvc,pfEmail].forEach(function(el){el.value='';el.closest('.ff').classList.remove('error');});
+    document.getElementById('cc-name').textContent='YOUR NAME';
+    document.getElementById('cc-num').textContent='•••• •••• •••• ••••';
+    document.getElementById('cc-exp').textContent='MM/YY';
+    document.getElementById('cc-cvc').textContent='•••';
+    document.getElementById('cc-brand').textContent='CARD';
+  },500);
+}
+
+/* confetti */
+function confettiAt(host){
+  var colors=['#0071E3','#8E44EC','#E64980','#FFB36B','#30D158','#FFD60A'];
+  for(var i=0;i<32;i++){
+    var c=document.createElement('span');c.className='cf';
+    c.style.left=(10+Math.random()*80)+'%';c.style.background=colors[i%colors.length];
+    c.style.setProperty('--cx',(Math.random()*160-80)+'px');
+    c.style.setProperty('--cy',(220+Math.random()*160)+'px');
+    c.style.setProperty('--cr',(Math.random()*900-450)+'deg');
+    c.style.setProperty('--d',(1.2+Math.random()*0.9)+'s');
+    host.appendChild(c);(function(el){setTimeout(function(){el.remove();},2300);})(c);
+  }
+}
+
+/* expose for inline handlers */
+window.openPay=openPay;window.confirmPay=confirmPay;window.resetCheckout=resetCheckout;
+
+/* refresh() kept as a no-op alias so i18n's setLang() call is safe */
+function refresh(){
+  if(typeof renderSummary==='function')renderSummary();
+}
+
+/* ── i18n: EN · 简 · 繁 · 日 · 한 ── */
+function L(o){return o;}
+var I18N={
+en:{htmlLang:'en',cjk:false,title:'The Morgan Brief — Paid technical intelligence',navCta:'Subscribe',
+ dots:['Intro','Why paid','Deep-dives','Code vault','Pro reports','Community','Numbers','Plans'],
+ eyebrow:'By Alex Morgan',h1a:'Tech intel.',h1b:'Decoded.',
+ sub:'A paid technical briefing for engineers and founders — research, working code, and analysis you can act on the same day.',
+ link1:"See what's inside",link2:'View plans',cueScroll:'Scroll',cueKeep:'Keep going',cueOne:'One more',
+ statement:'Free information is everywhere. Signal is what you pay for.',
+ scenes:[
+  {tag:'Weekly deep-dive · Every Tuesday',h3:'One topic.<br>Fully decoded.',p:'A 20-minute deep-dive on one technology that matters: the architecture, the trade-offs, and exactly what to do about it.',link:'Read a sample'},
+  {tag:'Code vault · Included free',h3:'Ship faster.<br>Copy mine.',p:'Production-grade templates, snippets, and starter repos behind every issue. Paste, adapt, deploy — commercial license included.',link:'Browse the vault'},
+  {tag:'Research reports · Pro',h3:'Quarterly.<br>Unfiltered.',p:'Long-form technology research for Pro members — benchmarks, forecasts, vendor teardowns. No sponsors. No spin. No mercy.',link:'See the latest report'},
+  {tag:'Member Q&amp;A · Community',h3:'Ask anything.<br>Get answers.',p:'A private space where members get direct answers within 24 hours — plus monthly live calls and a searchable archive of every thread.',link:'Peek inside'}],
+ statsH1:'Numbers that',statsH2:'speak for themselves.',statLabels:['Subscribers reading','Renew every year','Issues published'],
+ contactHead:'Choose how you read.',contactSub:'Subscribe for everything, or pay per article. Cancel anytime.',
+ ckSub:'Subscribe',ckPpv:'Pay per article',ckMonthly:'Monthly',ckYearly:'Yearly',ckSave:'save 20%',ckPopular:'Popular',
+ planFeat:['Weekly headlines<br>1 free deep-dive / mo','Every deep-dive<br>Full code vault<br>Quarterly reports','Everything in Pro<br>5 seats<br>Priority Q&amp;A','Pay once, keep forever<br>All future issues'],
+ arts:[{tag:'Systems',time:'22 min',title:'Rust async, demystified'},{tag:'Infra',time:'28 min',title:'The edge infra teardown'},{tag:'AI',time:'19 min',title:'LLM evals that actually work'},{tag:'Data',time:'31 min',title:'Postgres at serious scale'}],
+ ckPpvHint:'Tap to add to your cart. Bundle 3+ and save 15%.',ckTotal:'Total',
+ ckPayment:'Payment',ckCardName:'Name on card',ckCardNum:'Card number',ckExp:'MM / YY',ckCvc:'CVC',ckReceipt:'Email for receipt',
+ ckHolder:'Card holder',ckExpires:'Expires',ckSecure:'🔒 Encrypted & secure · This is a demo — no real charge.',ckDoneBtn:'Done ↺',
+ t:{plans:{Free:'Free',Pro:'Pro',Team:'Team',Lifetime:'Lifetime'},drag:'Drag me',open:'Open ›',
+   ckYearSave:'Yearly discount (20%)',ckBundle:'Bundle discount (15%)',ckGetFree:'Start free',ckSubscribe:'Subscribe',ckUnlock:'Unlock now',
+   ckPickPlan:'Select a plan',ckPickArt:'Add an article',ckPayPlan:'Pay',ckPayUnlock:'Pay & unlock',
+   ckFreeDone:"You're in.",ckFreeSub:'Your free account is ready. Check your inbox.',
+   ckDonePlanH:'Subscription active.',ckDonePlanP:'Welcome to {p}. Receipt sent to your inbox.',
+   ckDoneArtH:'Articles unlocked.',ckDoneArtP:'{n} article(s) unlocked. Receipt sent.'}},
+zh:{htmlLang:'zh-CN',cjk:true,title:'The Morgan Brief — 付费技术资讯',navCta:'订阅',
+ dots:['简介','为何付费','深度解读','代码库','专业报告','社区','数据','订阅方案'],
+ eyebrow:'作者:Alex Morgan',h1a:'技术情报。',h1b:'全面解码。',
+ sub:'为工程师与创业者打造的付费技术简报——研究、可运行代码与分析,当天即可付诸行动。',
+ link1:'看看里面有什么',link2:'查看方案',cueScroll:'滚动',cueKeep:'继续',cueOne:'还有一个',
+ statement:'免费的信息无处不在。你付费买的,是真正的信号。',
+ scenes:[
+  {tag:'每周深度解读 · 每周二',h3:'一个主题。<br>彻底讲透。',p:'每期20分钟,深度拆解一项关键技术:架构、取舍,以及你该如何应对。',link:'阅读样刊'},
+  {tag:'代码库 · 免费附赠',h3:'更快上线。<br>直接抄我的。',p:'每期附带生产级模板、代码片段与起步仓库。复制、调整、部署——含商用许可。',link:'浏览代码库'},
+  {tag:'研究报告 · Pro',h3:'每季一份。<br>毫不过滤。',p:'面向 Pro 会员的长篇技术研究——基准测试、趋势预测、供应商深度拆解。无赞助,无立场,绝不留情。',link:'查看最新报告'},
+  {tag:'会员问答 · 社区',h3:'随便问。<br>都有答案。',p:'专属会员空间,24小时内获得直接解答——外加每月直播答疑与全部历史问答存档。',link:'进来看看'}],
+ statsH1:'数据',statsH2:'自己会说话。',statLabels:['订阅读者','年续订率','已发布期数'],
+ contactHead:'选择你的阅读方式。',contactSub:'订阅全部内容,或按篇付费。随时取消。',
+ ckSub:'订阅',ckPpv:'单篇付费',ckMonthly:'按月',ckYearly:'按年',ckSave:'省 20%',ckPopular:'热门',
+ planFeat:['每周要闻<br>每月 1 篇免费深度','全部深度文章<br>完整代码库<br>季度报告','Pro 全部内容<br>5 个席位<br>优先问答','一次付费,永久保留<br>所有未来内容'],
+ arts:[{tag:'系统',time:'22 分钟',title:'彻底搞懂 Rust 异步'},{tag:'基础设施',time:'28 分钟',title:'边缘基础设施深度拆解'},{tag:'AI',time:'19 分钟',title:'真正有效的大模型评估'},{tag:'数据',time:'31 分钟',title:'Postgres 大规模实战'}],
+ ckPpvHint:'点击加入购物车。一次买 3 篇以上立省 15%。',ckTotal:'合计',
+ ckPayment:'付款',ckCardName:'持卡人姓名',ckCardNum:'卡号',ckExp:'月 / 年',ckCvc:'安全码',ckReceipt:'接收收据的邮箱',
+ ckHolder:'持卡人',ckExpires:'有效期',ckSecure:'🔒 加密安全 · 此为演示,不会真实扣款。',ckDoneBtn:'完成 ↺',
+ t:{plans:{Free:'免费',Pro:'Pro',Team:'团队',Lifetime:'终身'},drag:'拖我',open:'打开 ›',
+   ckYearSave:'年付优惠(20%)',ckBundle:'打包优惠(15%)',ckGetFree:'免费开始',ckSubscribe:'订阅',ckUnlock:'立即解锁',
+   ckPickPlan:'请选择方案',ckPickArt:'请添加文章',ckPayPlan:'支付',ckPayUnlock:'支付并解锁',
+   ckFreeDone:'订阅成功。',ckFreeSub:'你的免费账户已就绪,请查收邮件。',
+   ckDonePlanH:'订阅已生效。',ckDonePlanP:'欢迎加入 {p}。收据已发送至你的邮箱。',
+   ckDoneArtH:'文章已解锁。',ckDoneArtP:'已解锁 {n} 篇文章。收据已发送。'}},
+tw:{htmlLang:'zh-TW',cjk:true,title:'The Morgan Brief — 付費技術資訊',navCta:'訂閱',
+ dots:['簡介','為何付費','深度解讀','程式碼庫','專業報告','社群','數據','訂閱方案'],
+ eyebrow:'作者:Alex Morgan',h1a:'技術情報。',h1b:'全面解碼。',
+ sub:'為工程師與創業者打造的付費技術簡報——研究、可運行程式碼與分析,當天即可付諸行動。',
+ link1:'看看裡面有什麼',link2:'查看方案',cueScroll:'捲動',cueKeep:'繼續',cueOne:'還有一個',
+ statement:'免費的資訊無處不在。你付費買的,是真正的訊號。',
+ scenes:[
+  {tag:'每週深度解讀 · 每週二',h3:'一個主題。<br>徹底講透。',p:'每期20分鐘,深度拆解一項關鍵技術:架構、取捨,以及你該如何應對。',link:'閱讀樣刊'},
+  {tag:'程式碼庫 · 免費附贈',h3:'更快上線。<br>直接抄我的。',p:'每期附帶生產級模板、程式碼片段與起步倉庫。複製、調整、部署——含商用授權。',link:'瀏覽程式碼庫'},
+  {tag:'研究報告 · Pro',h3:'每季一份。<br>毫不過濾。',p:'面向 Pro 會員的長篇技術研究——基準測試、趨勢預測、供應商深度拆解。無贊助,無立場,絕不留情。',link:'查看最新報告'},
+  {tag:'會員問答 · 社群',h3:'隨便問。<br>都有答案。',p:'專屬會員空間,24小時內獲得直接解答——外加每月直播答疑與全部歷史問答存檔。',link:'進來看看'}],
+ statsH1:'數據',statsH2:'自己會說話。',statLabels:['訂閱讀者','年續訂率','已發布期數'],
+ contactHead:'選擇你的閱讀方式。',contactSub:'訂閱全部內容,或按篇付費。隨時取消。',
+ ckSub:'訂閱',ckPpv:'單篇付費',ckMonthly:'按月',ckYearly:'按年',ckSave:'省 20%',ckPopular:'熱門',
+ planFeat:['每週要聞<br>每月 1 篇免費深度','全部深度文章<br>完整程式碼庫<br>季度報告','Pro 全部內容<br>5 個席位<br>優先問答','一次付費,永久保留<br>所有未來內容'],
+ arts:[{tag:'系統',time:'22 分鐘',title:'徹底搞懂 Rust 非同步'},{tag:'基礎設施',time:'28 分鐘',title:'邊緣基礎設施深度拆解'},{tag:'AI',time:'19 分鐘',title:'真正有效的大模型評估'},{tag:'資料',time:'31 分鐘',title:'Postgres 大規模實戰'}],
+ ckPpvHint:'點擊加入購物車。一次買 3 篇以上立省 15%。',ckTotal:'合計',
+ ckPayment:'付款',ckCardName:'持卡人姓名',ckCardNum:'卡號',ckExp:'月 / 年',ckCvc:'安全碼',ckReceipt:'接收收據的電子郵件',
+ ckHolder:'持卡人',ckExpires:'有效期',ckSecure:'🔒 加密安全 · 此為示範,不會真實扣款。',ckDoneBtn:'完成 ↺',
+ t:{plans:{Free:'免費',Pro:'Pro',Team:'團隊',Lifetime:'終身'},drag:'拖我',open:'打開 ›',
+   ckYearSave:'年付優惠(20%)',ckBundle:'打包優惠(15%)',ckGetFree:'免費開始',ckSubscribe:'訂閱',ckUnlock:'立即解鎖',
+   ckPickPlan:'請選擇方案',ckPickArt:'請新增文章',ckPayPlan:'支付',ckPayUnlock:'支付並解鎖',
+   ckFreeDone:'訂閱成功。',ckFreeSub:'你的免費帳戶已就緒,請查收郵件。',
+   ckDonePlanH:'訂閱已生效。',ckDonePlanP:'歡迎加入 {p}。收據已發送至你的信箱。',
+   ckDoneArtH:'文章已解鎖。',ckDoneArtP:'已解鎖 {n} 篇文章。收據已發送。'}},
+ja:{htmlLang:'ja',cjk:true,title:'The Morgan Brief — 有料テック情報',navCta:'購読する',
+ dots:['はじめに','有料の理由','徹底解説','コード保管庫','Proレポート','コミュニティ','実績','料金プラン'],
+ eyebrow:'著者:Alex Morgan',h1a:'技術情報。',h1b:'完全解読。',
+ sub:'エンジニアと創業者のための有料テックブリーフィング。リサーチ、動くコード、即日活用できる分析。',
+ link1:'中身を見る',link2:'プランを見る',cueScroll:'スクロール',cueKeep:'続ける',cueOne:'あと一つ',
+ statement:'無料の情報はどこにでもある。お金を払う価値があるのは「シグナル」だ。',
+ scenes:[
+  {tag:'週刊ディープダイブ · 毎週火曜',h3:'一つのテーマを。<br>徹底的に。',p:'毎回20分で、重要な技術を1つ深掘り。アーキテクチャ、トレードオフ、そして取るべきアクション。',link:'サンプルを読む'},
+  {tag:'コード保管庫 · 無料付属',h3:'より速く出荷。<br>私のをコピー。',p:'毎号にプロダクション級のテンプレート、スニペット、スターターリポジトリ付き。コピーして、調整して、デプロイ。商用ライセンス込み。',link:'保管庫を見る'},
+  {tag:'リサーチレポート · Pro',h3:'四半期ごと。<br>忖度なし。',p:'Proメンバー向けの長編テクノロジーリサーチ。ベンチマーク、予測、ベンダー解剖。スポンサーなし、忖度なし、容赦なし。',link:'最新レポートを見る'},
+  {tag:'メンバーQ&amp;A · コミュニティ',h3:'何でも聞いて。<br>答えが返る。',p:'メンバー限定スペースで24時間以内に直接回答。毎月のライブ通話と全スレッドの検索可能アーカイブ付き。',link:'中を覗く'}],
+ statsH1:'数字が',statsH2:'すべてを物語る。',statLabels:['購読者数','年間更新率','発行号数'],
+ contactHead:'読み方を選ぶ。',contactSub:'すべて購読、または記事ごとに購入。いつでも解約。',
+ ckSub:'購読',ckPpv:'記事ごとに購入',ckMonthly:'月額',ckYearly:'年額',ckSave:'20%お得',ckPopular:'人気',
+ planFeat:['週刊ヘッドライン<br>月1本の無料解説','全ディープダイブ<br>コード保管庫<br>四半期レポート','Proの全機能<br>5シート<br>優先Q&amp;A','一度の支払いで永久<br>今後の全号'],
+ arts:[{tag:'システム',time:'22分',title:'Rust非同期を解き明かす'},{tag:'インフラ',time:'28分',title:'エッジインフラ徹底解剖'},{tag:'AI',time:'19分',title:'本当に効くLLM評価'},{tag:'データ',time:'31分',title:'大規模Postgres実践'}],
+ ckPpvHint:'タップしてカートに追加。3本以上で15%お得。',ckTotal:'合計',
+ ckPayment:'お支払い',ckCardName:'カード名義',ckCardNum:'カード番号',ckExp:'月 / 年',ckCvc:'CVC',ckReceipt:'領収書送付先メール',
+ ckHolder:'名義人',ckExpires:'有効期限',ckSecure:'🔒 暗号化・安全 · これはデモです。実際の請求はありません。',ckDoneBtn:'完了 ↺',
+ t:{plans:{Free:'無料',Pro:'Pro',Team:'チーム',Lifetime:'買い切り'},drag:'ドラッグ',open:'開く ›',
+   ckYearSave:'年額割引(20%)',ckBundle:'まとめ割引(15%)',ckGetFree:'無料で開始',ckSubscribe:'購読する',ckUnlock:'今すぐ解除',
+   ckPickPlan:'プランを選択',ckPickArt:'記事を追加',ckPayPlan:'支払う',ckPayUnlock:'支払って解除',
+   ckFreeDone:'ようこそ。',ckFreeSub:'無料アカウントの準備ができました。メールをご確認ください。',
+   ckDonePlanH:'購読が有効になりました。',ckDonePlanP:'{p}へようこそ。領収書をメールでお送りしました。',
+   ckDoneArtH:'記事を解除しました。',ckDoneArtP:'{n}本の記事を解除しました。領収書を送信しました。'}},
+ko:{htmlLang:'ko',cjk:true,title:'The Morgan Brief — 유료 기술 정보',navCta:'구독하기',
+ dots:['소개','유료인 이유','심층 분석','코드 볼트','프로 리포트','커뮤니티','숫자','요금제'],
+ eyebrow:'저자: Alex Morgan',h1a:'기술 정보.',h1b:'완전 해독.',
+ sub:'엔지니어와 창업자를 위한 유료 기술 브리핑 — 리서치, 실행 가능한 코드, 당일 바로 활용할 수 있는 분석.',
+ link1:'내용 살펴보기',link2:'요금제 보기',cueScroll:'스크롤',cueKeep:'계속',cueOne:'하나 더',
+ statement:'무료 정보는 어디에나 있습니다. 당신이 돈을 내는 것은 시그널입니다.',
+ scenes:[
+  {tag:'주간 심층 분석 · 매주 화요일',h3:'하나의 주제.<br>완전한 해독.',p:'매회 20분, 중요한 기술 하나를 깊이 파헤칩니다: 아키텍처, 트레이드오프, 그리고 당장 할 일.',link:'샘플 읽기'},
+  {tag:'코드 볼트 · 무료 포함',h3:'더 빠른 출시.<br>제 걸 복사하세요.',p:'매호마다 프로덕션급 템플릿, 스니펫, 스타터 저장소 제공. 복사하고, 수정하고, 배포하세요 — 상업용 라이선스 포함.',link:'볼트 둘러보기'},
+  {tag:'리서치 리포트 · Pro',h3:'분기마다.<br>여과 없이.',p:'프로 멤버를 위한 장문 기술 리서치 — 벤치마크, 전망, 벤더 해부. 스폰서 없음. 왜곡 없음. 가차 없음.',link:'최신 리포트 보기'},
+  {tag:'멤버 Q&amp;A · 커뮤니티',h3:'무엇이든 물어보세요.<br>답을 받으세요.',p:'멤버 전용 공간에서 24시간 내 직접 답변 — 월간 라이브 콜과 모든 스레드의 검색 가능한 아카이브 포함.',link:'안을 들여다보기'}],
+ statsH1:'숫자가',statsH2:'모든 것을 말해줍니다.',statLabels:['구독자','연간 갱신율','발행 호수'],
+ contactHead:'읽는 방식을 선택하세요.',contactSub:'전체 구독하거나 글마다 결제하세요. 언제든 해지 가능.',
+ ckSub:'구독',ckPpv:'글마다 결제',ckMonthly:'월간',ckYearly:'연간',ckSave:'20% 절약',ckPopular:'인기',
+ planFeat:['주간 헤드라인<br>매월 무료 심층 1편','모든 심층 분석<br>전체 코드 볼트<br>분기 리포트','Pro 전체<br>5석<br>우선 Q&amp;A','한 번 결제로 평생<br>모든 향후 호'],
+ arts:[{tag:'시스템',time:'22분',title:'Rust 비동기 완전 정복'},{tag:'인프라',time:'28분',title:'엣지 인프라 해부'},{tag:'AI',time:'19분',title:'진짜 효과있는 LLM 평가'},{tag:'데이터',time:'31분',title:'대규모 Postgres 실전'}],
+ ckPpvHint:'탭하여 장바구니에 추가. 3편 이상 묶으면 15% 할인.',ckTotal:'합계',
+ ckPayment:'결제',ckCardName:'카드 소유자명',ckCardNum:'카드 번호',ckExp:'월 / 년',ckCvc:'CVC',ckReceipt:'영수증 받을 이메일',
+ ckHolder:'소유자',ckExpires:'만료',ckSecure:'🔒 암호화 보안 · 데모입니다 — 실제 청구 없음.',ckDoneBtn:'완료 ↺',
+ t:{plans:{Free:'무료',Pro:'Pro',Team:'팀',Lifetime:'평생'},drag:'드래그',open:'열기 ›',
+   ckYearSave:'연간 할인(20%)',ckBundle:'묶음 할인(15%)',ckGetFree:'무료로 시작',ckSubscribe:'구독하기',ckUnlock:'지금 잠금 해제',
+   ckPickPlan:'요금제를 선택하세요',ckPickArt:'글을 추가하세요',ckPayPlan:'결제',ckPayUnlock:'결제하고 잠금 해제',
+   ckFreeDone:'가입 완료.',ckFreeSub:'무료 계정이 준비되었습니다. 이메일을 확인하세요.',
+   ckDonePlanH:'구독이 활성화되었습니다.',ckDonePlanP:'{p}에 오신 것을 환영합니다. 영수증을 이메일로 보냈습니다.',
+   ckDoneArtH:'글이 잠금 해제되었습니다.',ckDoneArtP:'{n}개의 글이 잠금 해제되었습니다. 영수증을 보냈습니다.'}}
+};
+
+var CUR_LANG='en';
+function setLang(l){
+  var d=I18N[l]||I18N.en;CUR_LANG=l;
+  document.documentElement.lang=d.htmlLang;
+  document.body.classList.toggle('cjk',d.cjk);
+  document.title=d.title;
+  document.querySelector('.nav-cta').textContent=d.navCta;
+  document.querySelectorAll('.dot').forEach(function(b,i){
+    b.setAttribute('aria-label',d.dots[i]);b.querySelector('.lbl').textContent=d.dots[i];
+  });
+  doSplit(document.querySelector('.hero-eyebrow'),d.eyebrow);
+  var hs=document.querySelectorAll('.hero-h1 .split');
+  doSplit(hs[0],d.h1a);doSplit(hs[1],d.h1b);
+  document.querySelector('.hero-sub').textContent=d.sub;
+  var hl=document.querySelectorAll('.hero-links .link-blue');
+  hl[0].innerHTML=d.link1+' <span class="chev">\u203A</span>';
+  hl[1].innerHTML=d.link2+' <span class="chev">\u203A</span>';
+  document.querySelector('#s0 .scroll-cue').textContent=d.cueScroll;
+  document.querySelector('#s1 .scroll-cue').textContent=d.cueKeep;
+  document.querySelector('#s6 .scroll-cue').textContent=d.cueOne;
+  buildStatement(d.statement,d.cjk);
+  if(parseInt(document.body.dataset.scene||0)===1)sweepWords();
+  ['s2','s3','s4','s5'].forEach(function(id,i){
+    var sc=d.scenes[i],sec=document.getElementById(id);
+    sec.querySelector('.ptag').innerHTML=sc.tag;
+    sec.querySelector('.prod-copy h3').innerHTML=sc.h3;
+    sec.querySelector('.prod-copy p').textContent=sc.p;
+    sec.querySelector('.link-blue').innerHTML=sc.link+' <span class="chev">\u203A</span>';
+  });
+  document.querySelector('#s6 .stats-head').innerHTML=d.statsH1+'<br><span class="grad">'+d.statsH2+'</span>';
+  document.querySelectorAll('#s6 .stat-l').forEach(function(el,i){el.textContent=d.statLabels[i];});
+  /* checkout */
+  document.getElementById('contact-h').textContent=d.contactHead;
+  document.getElementById('contact-sub').textContent=d.contactSub;
+  document.getElementById('mode-sub').textContent=d.ckSub;
+  document.getElementById('mode-ppv').textContent=d.ckPpv;
+  document.getElementById('cyc-month').textContent=d.ckMonthly;
+  document.getElementById('cyc-year').innerHTML=d.ckYearly+' <em class="save">'+d.ckSave+'</em>';
+  document.getElementById('badge-pop').textContent=d.ckPopular;
+  document.querySelectorAll('#plan-grid .plan').forEach(function(pl,i){
+    pl.querySelector('.plan-feat').innerHTML=d.planFeat[i];
+  });
+  document.querySelectorAll('#art-list .art').forEach(function(ar,i){
+    ar.querySelector('.art-tag').textContent=d.arts[i].tag;
+    ar.querySelector('.art-time').textContent=d.arts[i].time;
+    ar.querySelector('.art-title').textContent=d.arts[i].title;
+  });
+  document.getElementById('ppv-hint').textContent=d.ckPpvHint;
+  document.getElementById('sum-total-lbl').textContent=d.ckTotal;
+  document.getElementById('sheet-h').textContent=d.ckPayment;
+  document.getElementById('lpf-name').textContent=d.ckCardName;
+  document.getElementById('lpf-num').textContent=d.ckCardNum;
+  document.getElementById('lpf-exp').textContent=d.ckExp;
+  document.getElementById('lpf-cvc').textContent=d.ckCvc;
+  document.getElementById('lpf-email').textContent=d.ckReceipt;
+  document.getElementById('cc-name-l').textContent=d.ckHolder;
+  document.getElementById('cc-exp-l').textContent=d.ckExpires;
+  document.getElementById('pay-secure').textContent=d.ckSecure;
+  document.getElementById('done-again').textContent=d.ckDoneBtn;
+  T=d.t;CURLBL.drag=d.t.drag;CURLBL.open=d.t.open;
+  if(typeof renderSummary==='function')renderSummary();
+  /* flag + code on trigger */
+  var LFLAG={en:'🇺🇸',zh:'🇨🇳',tw:'🇨🇳',ja:'🇯🇵',ko:'🇰🇷'},LCODE={en:'EN',zh:'简',tw:'繁',ja:'日',ko:'한'};
+  document.getElementById('lang-flag').textContent=LFLAG[l];
+  document.getElementById('lang-code').textContent=LCODE[l];
+  document.querySelectorAll('.lang-menu button').forEach(function(b){
+    b.classList.toggle('on',b.dataset.lang===l);b.setAttribute('aria-selected',b.dataset.lang===l?'true':'false');
+  });
+  document.getElementById('lang-dd').classList.remove('open');
+  document.getElementById('lang-cur').setAttribute('aria-expanded','false');
+  try{localStorage.setItem('mb-lang',l);}catch(e){}
+}
+/* dropdown behavior */
+(function(){
+  var dd=document.getElementById('lang-dd'),cur=document.getElementById('lang-cur');
+  cur.addEventListener('click',function(e){e.stopPropagation();
+    var open=dd.classList.toggle('open');cur.setAttribute('aria-expanded',open?'true':'false');});
+  document.querySelectorAll('.lang-menu button').forEach(function(b){
+    b.addEventListener('click',function(e){e.stopPropagation();setLang(this.dataset.lang);});});
+  document.addEventListener('click',function(){dd.classList.remove('open');cur.setAttribute('aria-expanded','false');});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'){dd.classList.remove('open');cur.setAttribute('aria-expanded','false');}});
+})();
+(function(){
+  var saved=null;try{saved=localStorage.getItem('mb-lang');}catch(e){}
+  var nl=(navigator.language||'en').toLowerCase();
+  var auto=nl.indexOf('zh-tw')===0||nl.indexOf('zh-hk')===0?'tw':nl.indexOf('zh')===0?'zh':nl.indexOf('ja')===0?'ja':nl.indexOf('ko')===0?'ko':'en';
+  var pick=saved&&I18N[saved]?saved:auto;
+  if(pick!=='en')setLang(pick);
+})();
+
+/* keyboard section nav */
+document.addEventListener('keydown',function(e){
+  if(e.key!=='ArrowDown'&&e.key!=='ArrowUp')return;
+  if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;
+  e.preventDefault();
+  var cur=parseInt(document.body.dataset.scene||0);
+  var next=e.key==='ArrowDown'?Math.min(cur+1,7):Math.max(cur-1,0);
+  goTo('s'+next);
+});
+</script>
+</body>
+</html>
